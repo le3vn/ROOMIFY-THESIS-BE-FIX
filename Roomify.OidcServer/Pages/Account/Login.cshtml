@@ -1,0 +1,51 @@
+﻿@page
+@model LoginModel
+
+@{
+    ViewData["Title"] = "Sign in";
+    Layout = "_LoginLayout";
+}
+    <img src="~/images/logo-side-bar.png" style="position:absolute; left: 32px; top:32px; width: 200px;" />
+
+    <div id="particles-js" style="position: absolute; top: 0; left: 0; width: 100%; height: 100vh; z-index: 1;"></div>
+
+    <div style="background-color:black; width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center;">
+        <div style="width: 420px; height: 540px; background-color: white; border-radius: 16px; padding: 32px; z-index: 500;">
+            <h1 style="margin-top: 10px; margin-bottom: 20px;">Login</h1>
+            <form method="post">
+                <div>
+                    <label style="margin-top: 20px;" for="username">Username</label>
+                    <input id="username" asp-for="Input.Email" style="margin-top: 10px; width: 100%;" type="email" class="form-control" 
+                        autocomplete="username" aria-required="true" placeholder="john.smith@accelist.com" autofocus />
+                </div>
+                <div>
+                    <label style="margin-top: 30px" for="input-password">Password</label>
+                    <div style="position: relative;">
+                        <input asp-for="Input.Password" type="password" id="input-password" class="form-control" 
+                            autocomplete="current-password" aria-required="true" placeholder="Password" style="width: 100%;" />
+                        <i class="fa-solid fa-eye" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%)" id="eye"></i>
+                    </div>
+                </div>
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div style="display: flex; justify-content: center; margin-top: 50px;">
+                    <button id="login-submit" type="submit" style="background-color: #380356; color: white; width: 250px; border-radius: 25px; font-size: larger; border-color: transparent;">Log in</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="~/js/particles.min.js"></script>
+    <script>
+        particlesJS.load('particles-js', '~/js/particles.json', function() {
+            console.log('callback - particles.js config loaded');
+        });
+    </script>
+    <script>
+        const eye = document.getElementById("eye");
+        eye.addEventListener('click', function () {
+            const passwordInput = document.getElementById('input-password');
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.classList.toggle('fa-eye-slash');
+        });
+    </script>

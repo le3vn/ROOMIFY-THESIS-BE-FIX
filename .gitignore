@@ -1,0 +1,7 @@
+# Ignore build output directories
+bin/
+obj/
+
+# Ignore system files
+.DS_Store
+Thumbs.db
