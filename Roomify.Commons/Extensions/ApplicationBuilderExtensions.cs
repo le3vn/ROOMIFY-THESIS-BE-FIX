@@ -147,7 +147,6 @@ namespace Microsoft.Extensions.Hosting
             var opts = new MinIoOptions();
             optionsBuilder?.Invoke(opts);
 
-            // Register MinioClient as a singleton
             services.AddSingleton(di =>
             {
                 return (MinioClient)new MinioClient()
