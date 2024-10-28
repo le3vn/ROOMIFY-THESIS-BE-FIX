@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Roomify.Commons.Extensions;
+using Roomify.Commons.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -29,11 +31,22 @@ builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwa
 builder.Services.AddSwaggerGen();
 
 builder.Services.Configure<AppSettings>(builder.Configuration);
+builder.Services.Configure<MinIoOptions>(configuration.GetSection("MinIO"));
+
 builder.Services.AddApplicationServices(options =>
 {
     options.PostgreSqlConnectionString = configuration.GetConnectionString("PostgreSql");
     options.AddWebAppOnlyServices = true;
 });
+builder.Services.AddMinIoService(options =>
+{
+    options.EndPoint = configuration["MinIO:EndPoint"];
+    options.AccessKey = configuration["MinIO:AccessKey"];
+    options.ServerKey = configuration["MinIO:ServerKey"];
+    options.BucketName = configuration["MinIO:BucketName"];
+    options.IsUseSsl = configuration.GetValue<bool>("MinIO:IsUseSsl");
+});
+builder.Services.AddTransient<IStorageService, StorageService>();
 builder.Services.AddAutoMapper(typeof(UserController.UpdateUserApiModelAutoMapper));
 
 builder.Services.AddOpenIdConnectValidationAuthentication(options =>

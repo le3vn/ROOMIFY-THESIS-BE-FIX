@@ -5,13 +5,7 @@ namespace Roomify.Entities
 {
     public class Blob : IHaveCreateOnlyAudit
     {
-        public Blob()
-        {
-            Id = Ulid.NewUlid().ToString();
-        }
-
-        [StringLength(26)]
-        public string Id { get; set; }
+        public Guid Id { get; set; }
 
         [StringLength(255)]
         public string FileName { get; set; } = "";
@@ -21,19 +15,12 @@ namespace Roomify.Entities
 
         [StringLength(255)]
         public string ContentType { get; set; } = "";
-
-        [StringLength(128)]
-        public string? ReferencedByTable { get; set; }
-
-        [StringLength(128)]
-        public string? ReferencedByColumn { get; set; }
-
-        [StringLength(450)]
-        public string? ReferencedByRowId { get; set; }
-
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        
+        public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
         [StringLength(256)]
         public string? CreatedBy { get; set; }
+        public List<User>? Users { get; set; } = new List<User>();
+        public List<Building>? Buildings { get; set; } = new List<Building>();
     }
 }

@@ -44,12 +44,12 @@ namespace Roomify.Entities
 
         public bool IsEnabled { set; get; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTimeOffset CreatedAt { get; set; } = DateTime.UtcNow;
 
         [StringLength(256)]
         public string? CreatedBy { get; set; }
 
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public DateTimeOffset UpdatedAt { get; set; } = DateTime.UtcNow;
 
         [StringLength(256)]
         public string? UpdatedBy { get; set; }

@@ -17,9 +17,8 @@ public class Room
     public string Name { get; set; } = string.Empty;
     public int RoomType { get; set; }
     public int Capacity { get; set; }
-    [ForeignKey("BlobId")]
-    public string RoomPictureId { get; set; } = string.Empty;
-    public Blob? Blobs { get; set; }
+    public Guid BlobId { get; set; }
+    public Blob Blob { get; set; } = null!;
     [Required]
     [StringLength(500)]
     public string Description { get; set; } = string.Empty;

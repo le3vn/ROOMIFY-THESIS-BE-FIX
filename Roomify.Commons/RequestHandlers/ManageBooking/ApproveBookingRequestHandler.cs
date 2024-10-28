@@ -85,7 +85,35 @@ namespace Roomify.Commons.RequestHandlers.ManageRoom
             {
                 if(booking.ApprovalCount == 0){
                 // Case 1.1: Approved
-                    booking.StatusId = 2; // Booking is fully approved
+                     booking.StatusId = 2;
+
+                    // Fetch the sessions booked for this booking
+                    var sessionBookeds = await _db.SessionBookeds
+                        .Where(sb => sb.BookingId == request.BookingId)
+                        .ToListAsync(cancellationToken);
+
+                    // If no sessions are booked, handle appropriately
+                    if (sessionBookeds.Count == 0)
+                    {
+                        throw new Exception("No sessions booked for this booking.");
+                    }
+
+                    // Add Schedule entries for each booked session
+                    foreach (var sessionBooked in sessionBookeds)
+                    {
+                        var schedule = new Schedule
+                        {
+                            RoomId = booking.RoomId,
+                            SessionId = sessionBooked.SessionId,  // Use the SessionId from the booked session
+                            ScheduleDescription = booking.BookingDescription,
+                            CreatedAt = DateTimeOffset.UtcNow,
+                            CreatedBy = "Admin",
+                            Date = DateOnly.FromDateTime(booking.BookingDate)
+
+                        };
+
+                        _db.Schedules.Add(schedule);
+                    }
                 }
             }
             else
@@ -103,7 +131,7 @@ namespace Roomify.Commons.RequestHandlers.ManageRoom
                         BookingId = request.BookingId,
                         Message = request.RejectMessage,
                         CreatedAt = DateTimeOffset.UtcNow,
-                        CreatedBy = "Admin"
+                        CreatedBy = "Admin",
                     });
                 }
             }

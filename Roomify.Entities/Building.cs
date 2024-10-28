@@ -11,9 +11,10 @@ public class Building
     [Required]
     [StringLength(255)]
     public string Name { get; set; } = string.Empty;
-    [ForeignKey("BlobId")]
-    public string BuildingPictureId { get; set; } = string.Empty;
-    public Blob? Blob { get; set; }
+    public Guid BlobId { get; set; }
+    public Blob Blob { get; set; } = null!;
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     public string? CreatedBy { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
+    public string? UpdatedBy { get; set; } = "";
 }

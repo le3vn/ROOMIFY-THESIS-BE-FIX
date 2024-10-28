@@ -38,25 +38,17 @@ namespace Roomify.Entities
         }
 
         public DbSet<Blob> Blobs => Set<Blob>();
-
         public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
-
         public DbSet<ApproverDetail> ApproverDetails => Set<ApproverDetail>();
-
         public DbSet<Booking> Bookings => Set<Booking>();
-
         public DbSet<Building> Buildings => Set<Building>();
-
         public DbSet<Room> Rooms => Set<Room>();
-
         public DbSet<RoomGroup> RoomGroups => Set<RoomGroup>();
-
         public DbSet<Session> Sessions => Set<Session>();
-
         public DbSet<SessionBooked> SessionBookeds => Set<SessionBooked>();
-
         public DbSet<Status> Statuses => Set<Status>();
         public DbSet<RoomType> RoomTypes => Set<RoomType>();
         public DbSet<RejectMessage> RejectMessages => Set<RejectMessage>();
+        public DbSet<Schedule> Schedules => Set<Schedule>();
     }
 }

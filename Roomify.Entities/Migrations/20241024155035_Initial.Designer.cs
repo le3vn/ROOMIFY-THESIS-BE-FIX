@@ -12,15 +12,15 @@ using Roomify.Entities;
 namespace Roomify.Entities.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241002163946_FirstMigrationDB")]
-    partial class FirstMigrationDB
+    [Migration("20241024155035_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.8")
+                .HasAnnotation("ProductVersion", "8.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "pg_trgm");
@@ -431,16 +431,16 @@ namespace Roomify.Entities.Migrations
 
             modelBuilder.Entity("Roomify.Entities.Blob", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasMaxLength(26)
-                        .HasColumnType("character varying(26)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ContentType")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
@@ -456,18 +456,6 @@ namespace Roomify.Entities.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
-
-                    b.Property<string>("ReferencedByColumn")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
-
-                    b.Property<string>("ReferencedByRowId")
-                        .HasMaxLength(450)
-                        .HasColumnType("character varying(450)");
-
-                    b.Property<string>("ReferencedByTable")
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)");
 
                     b.HasKey("Id");
 
@@ -543,12 +531,8 @@ namespace Roomify.Entities.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("BuildingId"));
 
-                    b.Property<string>("BlobId")
-                        .HasColumnType("character varying(26)");
-
-                    b.Property<string>("BuildingPictureId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("BlobId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -560,6 +544,12 @@ namespace Roomify.Entities.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
 
                     b.HasKey("BuildingId");
 
@@ -603,8 +593,8 @@ namespace Roomify.Entities.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("RoomId"));
 
-                    b.Property<string>("BlobsId")
-                        .HasColumnType("character varying(26)");
+                    b.Property<Guid>("BlobId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("BuildingId")
                         .HasColumnType("integer");
@@ -628,10 +618,6 @@ namespace Roomify.Entities.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
-                    b.Property<string>("RoomPictureId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<int>("RoomType")
                         .HasColumnType("integer");
 
@@ -643,7 +629,7 @@ namespace Roomify.Entities.Migrations
 
                     b.HasKey("RoomId");
 
-                    b.HasIndex("BlobsId");
+                    b.HasIndex("BlobId");
 
                     b.HasIndex("BuildingId");
 
@@ -707,6 +693,42 @@ namespace Roomify.Entities.Migrations
                     b.HasKey("RoomTypeId");
 
                     b.ToTable("RoomTypes");
+                });
+
+            modelBuilder.Entity("Roomify.Entities.Schedule", b =>
+                {
+                    b.Property<int>("ScheduleId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ScheduleId"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<int>("RoomId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ScheduleDescription")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("SessionId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ScheduleId");
+
+                    b.HasIndex("RoomId");
+
+                    b.HasIndex("SessionId");
+
+                    b.ToTable("Schedules");
                 });
 
             modelBuilder.Entity("Roomify.Entities.Session", b =>
@@ -805,6 +827,9 @@ namespace Roomify.Entities.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("character varying(10)");
 
+                    b.Property<Guid?>("BlobId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("City")
                         .IsRequired()
                         .HasMaxLength(64)
@@ -819,7 +844,7 @@ namespace Roomify.Entities.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
@@ -901,7 +926,7 @@ namespace Roomify.Entities.Migrations
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UpdatedBy")
@@ -913,6 +938,8 @@ namespace Roomify.Entities.Migrations
                         .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BlobId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -1057,8 +1084,10 @@ namespace Roomify.Entities.Migrations
             modelBuilder.Entity("Roomify.Entities.Building", b =>
                 {
                     b.HasOne("Roomify.Entities.Blob", "Blob")
-                        .WithMany()
-                        .HasForeignKey("BlobId");
+                        .WithMany("Buildings")
+                        .HasForeignKey("BlobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Blob");
                 });
@@ -1076,9 +1105,11 @@ namespace Roomify.Entities.Migrations
 
             modelBuilder.Entity("Roomify.Entities.Room", b =>
                 {
-                    b.HasOne("Roomify.Entities.Blob", "Blobs")
+                    b.HasOne("Roomify.Entities.Blob", "Blob")
                         .WithMany()
-                        .HasForeignKey("BlobsId");
+                        .HasForeignKey("BlobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Roomify.Entities.Building", "Buildings")
                         .WithMany()
@@ -1086,7 +1117,7 @@ namespace Roomify.Entities.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Blobs");
+                    b.Navigation("Blob");
 
                     b.Navigation("Buildings");
                 });
@@ -1100,6 +1131,25 @@ namespace Roomify.Entities.Migrations
                         .IsRequired();
 
                     b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("Roomify.Entities.Schedule", b =>
+                {
+                    b.HasOne("Roomify.Entities.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Roomify.Entities.Session", "Sessions")
+                        .WithMany()
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Room");
+
+                    b.Navigation("Sessions");
                 });
 
             modelBuilder.Entity("Roomify.Entities.SessionBooked", b =>
@@ -1121,6 +1171,13 @@ namespace Roomify.Entities.Migrations
                     b.Navigation("Sessions");
                 });
 
+            modelBuilder.Entity("Roomify.Entities.User", b =>
+                {
+                    b.HasOne("Roomify.Entities.Blob", null)
+                        .WithMany("Users")
+                        .HasForeignKey("BlobId");
+                });
+
             modelBuilder.Entity("OpenIddict.EntityFrameworkCore.Models.OpenIddictEntityFrameworkCoreApplication", b =>
                 {
                     b.Navigation("Authorizations");
@@ -1131,6 +1188,13 @@ namespace Roomify.Entities.Migrations
             modelBuilder.Entity("OpenIddict.EntityFrameworkCore.Models.OpenIddictEntityFrameworkCoreAuthorization", b =>
                 {
                     b.Navigation("Tokens");
+                });
+
+            modelBuilder.Entity("Roomify.Entities.Blob", b =>
+                {
+                    b.Navigation("Buildings");
+
+                    b.Navigation("Users");
                 });
 #pragma warning restore 612, 618
         }

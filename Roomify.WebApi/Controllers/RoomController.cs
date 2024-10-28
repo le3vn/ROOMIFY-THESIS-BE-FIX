@@ -18,7 +18,7 @@ namespace Roomify.WebApi.Controllers
             _mediator = mediator;
         }
 
-        [HttpPost]
+        [HttpPost("create-room")]
         public async Task<ActionResult<CreateRoomResponseModel>> Post([FromBody] CreateRoomRequestModel request, [FromServices] IValidator<CreateRoomRequestModel> validator, CancellationToken ct)
         {
             var validationResult = await validator.ValidateAsync(request, ct);
@@ -33,6 +33,16 @@ namespace Roomify.WebApi.Controllers
         }
         [HttpGet]
         public async Task<ActionResult<GetRoomResponseModel>> Get([FromQuery] GetRoomRequestModel request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
+        }
+        [HttpGet("get-user-view")]
+        public async Task<ActionResult<GetRoomUserViewResponseModel>> Get([FromQuery] GetRoomUserViewRequestModel request, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(request, cancellationToken);
             if (result == null)
