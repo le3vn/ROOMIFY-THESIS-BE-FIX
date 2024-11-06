@@ -108,6 +108,12 @@ namespace Roomify.Controllers
             }
             return Ok(result);
         }
+        [HttpPost("cancel-booking")]
+        public async Task<ActionResult<CancelBookingResponseModel>> Post([FromForm] CancelBookingRequestModel request, CancellationToken ct)
+        {
+            var response = await _mediator.Send(request, ct);
+            return response;
+        }
 
     }
 }

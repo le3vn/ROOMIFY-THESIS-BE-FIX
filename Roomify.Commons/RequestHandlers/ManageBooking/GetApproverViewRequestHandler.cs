@@ -7,16 +7,19 @@ using Roomify.Contracts.RequestModels.ManageBooking;
 using Roomify.Contracts.ResponseModels.ManageBooking;
 using Roomify.Entities;
 using Microsoft.EntityFrameworkCore;
+using Roomify.Commons.Services;
 
 namespace Roomify.Commons.RequestHandlers.ManageBooking
 {
     public class GetApproverViewRequestHandler : IRequestHandler<GetApproverViewRequestModel, GetApproverViewResponseModel>
     {
         private readonly ApplicationDbContext _db;
+        private readonly IStorageService _storageService;
 
-        public GetApproverViewRequestHandler(ApplicationDbContext db)
+        public GetApproverViewRequestHandler(ApplicationDbContext db, IStorageService storageService)
         {
             _db = db;
+            _storageService = storageService;
         }
 
         public async Task<GetApproverViewResponseModel> Handle(GetApproverViewRequestModel request, CancellationToken cancellationToken)
@@ -115,6 +118,22 @@ namespace Roomify.Commons.RequestHandlers.ManageBooking
                         StatusName = _db.Statuses.FirstOrDefault(s => s.StatusId == statusId)?.Name ?? string.Empty
                     });
                 }
+                var Evidence = await _db.Bookings
+                .Include(u => u.Blob) // Ensure Blob navigation property is included
+                .FirstOrDefaultAsync(u => u.Id == booking.Id, cancellationToken); // Use user.Id
+
+                string minioUrl = string.Empty;
+                if (Evidence != null && Evidence.Blob != null && !string.IsNullOrEmpty(Evidence.Blob.FilePath))
+                {
+                    try
+                    {
+                        minioUrl = await _storageService.GetPresignedUrlReadAsync(Evidence.Blob.FilePath);
+                    }
+                    catch (Exception)
+                    {
+                        minioUrl = "Error generating URL"; 
+                    }
+                }
 
                 // Build the approver view model for this task
                 var approverViewModel = new GetApproverViewmodel
@@ -125,7 +144,9 @@ namespace Roomify.Commons.RequestHandlers.ManageBooking
                     RoomId = room?.RoomId ?? 0,
                     RoomName = room?.Name ?? string.Empty,
                     SessionList = sessionList,
-                    ApproverHistory = approverHistoryList
+                    ApproverHistory = approverHistoryList,
+                    MinioUrl = minioUrl,
+                    IsCanceled = booking.IsCanceled
                 };
 
                 approverViewModels.Add(approverViewModel);

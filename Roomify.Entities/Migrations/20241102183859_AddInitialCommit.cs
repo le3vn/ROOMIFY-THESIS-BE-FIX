@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Roomify.Entities.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class AddInitialCommit : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -193,6 +193,7 @@ namespace Roomify.Entities.Migrations
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedBy = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     BlobId = table.Column<Guid>(type: "uuid", nullable: true),
+                    DefaultRoleId = table.Column<Guid>(type: "uuid", nullable: false),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -352,6 +353,34 @@ namespace Roomify.Entities.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ManageRoles",
+                columns: table => new
+                {
+                    ManageRolesId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<string>(type: "character varying(36)", nullable: false),
+                    RoleId = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ManageRoles", x => x.ManageRolesId);
+                    table.ForeignKey(
+                        name: "FK_ManageRoles_AspNetRoles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ManageRoles_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Rooms",
                 columns: table => new
                 {
@@ -430,7 +459,8 @@ namespace Roomify.Entities.Migrations
                     ApprovalCount = table.Column<int>(type: "integer", nullable: false),
                     InstitutionalId = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     BookingDescription = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    Evidence = table.Column<string>(type: "text", nullable: true),
+                    BlobId = table.Column<Guid>(type: "uuid", nullable: false),
+                    IsCanceled = table.Column<bool>(type: "boolean", nullable: false),
                     CheckInTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
@@ -444,6 +474,12 @@ namespace Roomify.Entities.Migrations
                         name: "FK_Bookings_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Bookings_Blobs_BlobId",
+                        column: x => x.BlobId,
+                        principalTable: "Blobs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -664,6 +700,11 @@ namespace Roomify.Entities.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Bookings_BlobId",
+                table: "Bookings",
+                column: "BlobId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Bookings_RoomId",
                 table: "Bookings",
                 column: "RoomId");
@@ -682,6 +723,16 @@ namespace Roomify.Entities.Migrations
                 name: "IX_Buildings_BlobId",
                 table: "Buildings",
                 column: "BlobId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ManageRoles_RoleId",
+                table: "ManageRoles",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ManageRoles_UserId",
+                table: "ManageRoles",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OpenIddictApplications_ClientId",
@@ -780,6 +831,9 @@ namespace Roomify.Entities.Migrations
 
             migrationBuilder.DropTable(
                 name: "DataProtectionKeys");
+
+            migrationBuilder.DropTable(
+                name: "ManageRoles");
 
             migrationBuilder.DropTable(
                 name: "OpenIddictScopes");

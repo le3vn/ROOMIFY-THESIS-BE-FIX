@@ -6,16 +6,19 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Roomify.Commons.Services;
 
 namespace Roomify.Commons.RequestHandlers.ManageRoom
 {
     public class GetRoomUserViewRequestHandler : IRequestHandler<GetRoomUserViewRequestModel, GetRoomUserViewResponseModel>
     {
         private readonly ApplicationDbContext _db;
+        private readonly IStorageService _storageService;
 
-        public GetRoomUserViewRequestHandler(ApplicationDbContext db)
+        public GetRoomUserViewRequestHandler(ApplicationDbContext db, IStorageService storageService)
         {
             _db = db;
+            _storageService = storageService;
         }
 
         public async Task<GetRoomUserViewResponseModel> Handle(GetRoomUserViewRequestModel request, CancellationToken cancellationToken)
@@ -42,14 +45,13 @@ namespace Roomify.Commons.RequestHandlers.ManageRoom
             var bookedRoomIds = await _db.Schedules
                 .Where(s => s.Date == dateToBook)
                 .GroupBy(s => s.RoomId)
-                .Where(g => g.Count() >= 6) // Rooms fully booked
+                .Where(g => g.Count() >= 6)
                 .Select(g => g.Key)
                 .ToListAsync(cancellationToken);
 
-            // Filter rooms based on availability
             if (request.IsAvailable)
             {
-                query = query.Where(r => !bookedRoomIds.Contains(r.RoomId)); // Only available rooms
+                query = query.Where(r => !bookedRoomIds.Contains(r.RoomId));
             }
             else
             {
@@ -57,24 +59,50 @@ namespace Roomify.Commons.RequestHandlers.ManageRoom
             }
 
             // Select the relevant data
-            var rooms = await query.Select(r => new GetRoomModels
+            var rooms = await query.ToListAsync(cancellationToken);
+            var roomModels = new List<GetRoomModels>();
+
+            foreach (var room in rooms)
             {
-                RoomId = r.RoomId,
-                Name = r.Name,
-                RoomType = _db.RoomTypes.Where(rt => rt.RoomTypeId == r.RoomType).Select(rt => rt.Name).FirstOrDefault() ?? "Unknown",
-                Building = _db.Buildings.Where(b => b.BuildingId == r.BuildingId).Select(b => b.Name).FirstOrDefault() ?? "Unknown",
-                Description = r.Description,
-                Capacity = r.Capacity,
-                CreatedAt = r.CreatedAt,
-                CreatedBy = r.CreatedBy,
-                UpdatedAt = r.UpdatedAt,
-                UpdatedBy = r.UpdatedBy
-            }).ToListAsync(cancellationToken);
+                var roomModel = new GetRoomModels
+                {
+                    RoomId = room.RoomId,
+                    Name = room.Name,
+                    RoomType = _db.RoomTypes.Where(rt => rt.RoomTypeId == room.RoomType).Select(rt => rt.Name).FirstOrDefault() ?? "Unknown",
+                    Building = _db.Buildings.Where(b => b.BuildingId == room.BuildingId).Select(b => b.Name).FirstOrDefault() ?? "Unknown",
+                    Description = room.Description,
+                    Capacity = room.Capacity,
+                    CreatedAt = room.CreatedAt,
+                    CreatedBy = room.CreatedBy,
+                    UpdatedAt = room.UpdatedAt,
+                    UpdatedBy = room.UpdatedBy
+                };
+
+                // Assuming there's a Blob associated with each room
+                var blob = await _db.Blobs.FirstOrDefaultAsync(b => b.Id == room.BlobId, cancellationToken);
+                if (blob != null && !string.IsNullOrEmpty(blob.FilePath))
+                {
+                    try
+                    {
+                        roomModel.MinioUrl = await _storageService.GetPresignedUrlReadAsync(blob.FilePath);
+                    }
+                    catch (Exception)
+                    {
+                        roomModel.MinioUrl = "Error generating URL"; // Handle error as needed
+                    }
+                }
+                else
+                {
+                    roomModel.MinioUrl = ""; // Or set a default value if no blob
+                }
+
+                roomModels.Add(roomModel);
+            }
 
             return new GetRoomUserViewResponseModel
             {
-                RoomList = rooms,
-                TotalData = rooms.Count
+                RoomList = roomModels,
+                TotalData = roomModels.Count
             };
         }
     }

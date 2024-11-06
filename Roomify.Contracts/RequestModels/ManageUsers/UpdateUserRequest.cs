@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Http;
 
 namespace Roomify.Contracts.RequestModels.ManageUsers
 {
@@ -15,5 +16,6 @@ namespace Roomify.Contracts.RequestModels.ManageUsers
         public bool IsEnabled { set; get; }
 
         public string Password { set; get; } = "";
+        public IFormFile ProfilePicture { get; set; } = null!;
     }
 }

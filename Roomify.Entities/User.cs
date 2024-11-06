@@ -53,5 +53,8 @@ namespace Roomify.Entities
 
         [StringLength(256)]
         public string? UpdatedBy { get; set; }
+        public Guid? BlobId { get; set; }
+        public Blob Blob { get; set; } = null!;
+        public Guid DefaultRoleId { get; set; }
     }
 }

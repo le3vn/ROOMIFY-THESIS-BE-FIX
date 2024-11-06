@@ -15,6 +15,8 @@ public class GetApproverViewmodel
     public string Name { get; set; } = string.Empty;
     public int RoomId { get; set; }
     public string RoomName { get; set;} = string.Empty;
+    public string MinioUrl { get; set; } = "";
+    public bool IsCanceled { get; set; }
     public List<SessionBookedList> SessionList { get; set; } = new List<SessionBookedList>();
     public List<ApproverHistoryList> ApproverHistory { get; set; } = new List<ApproverHistoryList>();
 }

@@ -5,6 +5,9 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
+using Roomify.Entities;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -19,33 +22,30 @@ namespace Roomify.WebApi.Controllers
     {
         private readonly IMediator _mediator;
         private readonly IMapper _mapper;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
 
         /// <summary>
         /// Constructor for UserController.
         /// </summary>
         /// <param name="mediator"></param>
         /// <param name="mapper"></param>
-        public UserController(IMediator mediator, IMapper mapper)
+        public UserController(IMediator mediator, IMapper mapper, UserManager<User> userManager, SignInManager<User> signInManager)
         {
             _mediator = mediator;
             _mapper = mapper;
+            _userManager = userManager;
+            _signInManager = signInManager;
         }
-
-        // GET: api/<UserApiController>
-        /// <summary>
-        /// Get list of users.
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
         [HttpGet]
-        public IAsyncEnumerable<ListUserResponse> Get([FromQuery] ListUserRequest model)
+        public async Task<ActionResult<ListUserResponse>> Get([FromQuery] ListUserRequest request, CancellationToken cancellationToken)
         {
-            // https://swr.vercel.app/docs/pagination#useswrinfinite
-            // https://swr.vercel.app/docs/pagination#example-2-cursor-or-offset-based-paginated-api
-            // useSwrInfinite allows getting previous page data to be used as next page query
-
-            var response = _mediator.CreateStream(model);
-            return response;
+            var result = await _mediator.Send(request, cancellationToken);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
         }
 
         // GET api/<UserApiController>/5
@@ -81,7 +81,7 @@ namespace Roomify.WebApi.Controllers
         /// <exception cref="InvalidOperationException"></exception>
         [HttpPost]
         public async Task<ActionResult<string>> Post(
-            [FromBody] CreateUserRequest model,
+            [FromForm] CreateUserRequest model,
             [FromServices] IValidator<CreateUserRequest> validator,
             CancellationToken cancellationToken)
         {
@@ -155,7 +155,7 @@ namespace Roomify.WebApi.Controllers
         [HttpPost("{id}")]
         public async Task<ActionResult<bool>> Post(
             string id,
-            [FromBody] UpdateUserApiModel model,
+            [FromForm] UpdateUserRequest model,
             [FromServices] IValidator<UpdateUserRequest> validator)
         {
             var exist = await _mediator.Send(new GetUserDetailRequest
@@ -168,10 +168,7 @@ namespace Roomify.WebApi.Controllers
                 return NotFound();
             }
 
-            var request = _mapper.Map<UpdateUserRequest>(model);
-            request.Id = id;
-
-            var validationResult = await validator.ValidateAsync(request) ??
+            var validationResult = await validator.ValidateAsync(model) ??
                 throw new InvalidOperationException("Failed to validate data");
 
             if (validationResult.IsValid == false)
@@ -180,8 +177,9 @@ namespace Roomify.WebApi.Controllers
                 return ValidationProblem(ModelState);
             }
 
-            await _mediator.Send(request);
+            await _mediator.Send(model);
             return true;
         }
-    }
 }
+    }
+

@@ -12,8 +12,8 @@ using Roomify.Entities;
 namespace Roomify.Entities.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241024155035_Initial")]
-    partial class Initial
+    [Migration("20241102183859_AddInitialCommit")]
+    partial class AddInitialCommit
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -471,6 +471,9 @@ namespace Roomify.Entities.Migrations
                     b.Property<int>("ApprovalCount")
                         .HasColumnType("integer");
 
+                    b.Property<Guid>("BlobId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("BookingDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -488,13 +491,13 @@ namespace Roomify.Entities.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
-                    b.Property<string>("Evidence")
-                        .HasColumnType("text");
-
                     b.Property<string>("InstitutionalId")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<bool>("IsCanceled")
+                        .HasColumnType("boolean");
 
                     b.Property<int>("RoomId")
                         .HasColumnType("integer");
@@ -513,6 +516,8 @@ namespace Roomify.Entities.Migrations
                         .HasColumnType("character varying(36)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BlobId");
 
                     b.HasIndex("RoomId");
 
@@ -556,6 +561,37 @@ namespace Roomify.Entities.Migrations
                     b.HasIndex("BlobId");
 
                     b.ToTable("Buildings");
+                });
+
+            modelBuilder.Entity("Roomify.Entities.ManageRole", b =>
+                {
+                    b.Property<int>("ManageRolesId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ManageRolesId"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("character varying(36)");
+
+                    b.HasKey("ManageRolesId");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ManageRoles");
                 });
 
             modelBuilder.Entity("Roomify.Entities.RejectMessage", b =>
@@ -851,6 +887,9 @@ namespace Roomify.Entities.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
+                    b.Property<Guid>("DefaultRoleId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
@@ -1056,6 +1095,12 @@ namespace Roomify.Entities.Migrations
 
             modelBuilder.Entity("Roomify.Entities.Booking", b =>
                 {
+                    b.HasOne("Roomify.Entities.Blob", "Blob")
+                        .WithMany()
+                        .HasForeignKey("BlobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Roomify.Entities.Room", "Rooms")
                         .WithMany()
                         .HasForeignKey("RoomId")
@@ -1074,6 +1119,8 @@ namespace Roomify.Entities.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Blob");
+
                     b.Navigation("Rooms");
 
                     b.Navigation("Statuses");
@@ -1090,6 +1137,25 @@ namespace Roomify.Entities.Migrations
                         .IsRequired();
 
                     b.Navigation("Blob");
+                });
+
+            modelBuilder.Entity("Roomify.Entities.ManageRole", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Roomify.Entities.User", "Users")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("Roomify.Entities.RejectMessage", b =>
@@ -1173,9 +1239,11 @@ namespace Roomify.Entities.Migrations
 
             modelBuilder.Entity("Roomify.Entities.User", b =>
                 {
-                    b.HasOne("Roomify.Entities.Blob", null)
+                    b.HasOne("Roomify.Entities.Blob", "Blob")
                         .WithMany("Users")
                         .HasForeignKey("BlobId");
+
+                    b.Navigation("Blob");
                 });
 
             modelBuilder.Entity("OpenIddict.EntityFrameworkCore.Models.OpenIddictEntityFrameworkCoreApplication", b =>

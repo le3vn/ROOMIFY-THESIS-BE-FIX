@@ -1,25 +1,15 @@
-﻿using Roomify.Contracts.ResponseModels.ManageUsers;
-using MediatR;
+﻿using MediatR;
+using Roomify.Contracts.ResponseModels.ManageUsers;
 
 namespace Roomify.Contracts.RequestModels.ManageUsers
 {
-    public class ListUserRequest : IStreamRequest<ListUserResponse>
+    public class ListUserRequest : IRequest<ListUserResponse>
     {
-        public string? GivenName { set; get; }
-
-        public string? FamilyName { set; get; }
-
-        public string? Email { set; get; }
-
-        /// <summary>
-        /// Prefer keyset pagination instead of offset pagination: <br></br>
-        /// https://use-the-index-luke.com/sql/partial-results/fetch-next-page <br></br>
-        /// https://use-the-index-luke.com/no-offset <br></br>
-        /// In offset Pagination, all previous rows must be read, before being able to read the next page.
-        /// Whereas in Keyset Pagination, the server can jump immediately to the correct place in the index!
-        /// </summary>
-        public string? PreviousId { set; get; }
-
-        public string? PreviousGivenName { set; get; }
+        public string? GivenName { get; set; }
+        public string? FamilyName { get; set; }
+        public string? Email { get; set; }
+        public int? Page { get; set; } = 1; // Optional for pagination
+        public int PageSize { get; set; } = 10; // Default page size
+        public string SortOrder { get; set; } = "asc"; // Sort order
     }
 }

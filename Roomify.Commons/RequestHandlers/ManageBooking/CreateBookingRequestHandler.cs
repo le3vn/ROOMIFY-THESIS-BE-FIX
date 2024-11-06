@@ -3,6 +3,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Roomify.Commons.Constants;
+using Roomify.Commons.Services;
 using Roomify.Contracts.RequestModels.ManageBooking;
 using Roomify.Contracts.ResponseModels.ManageBooking;
 using Roomify.Entities;
@@ -12,10 +14,12 @@ namespace Roomify.Commons.RequestHandlers.ManageBooking
     public class CreateBookingRequestHandler : IRequestHandler<CreateBookingRequestModel, CreateBookingResponseModel>
     {
         private readonly ApplicationDbContext _db;
+        private readonly IStorageService _storageService;
 
-        public CreateBookingRequestHandler(ApplicationDbContext db)
+        public CreateBookingRequestHandler(ApplicationDbContext db, IStorageService storageService)
         {
             _db = db;
+            _storageService = storageService;
         }
 
         public async Task<CreateBookingResponseModel> Handle(CreateBookingRequestModel request, CancellationToken cancellationToken)
@@ -76,6 +80,23 @@ namespace Roomify.Commons.RequestHandlers.ManageBooking
 
         private async Task<CreateBookingResponseModel> HandleStudentCase(CreateBookingRequestModel request, RoomGroup roomGroup)
         {
+            var blob = new Blob
+            {
+                Id = Guid.NewGuid(),
+                FileName = request.Evidence.FileName,
+                FilePath = $"{BlobPath.File}/{request.Evidence.FileName}",
+                ContentType = request.Evidence.ContentType,
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = "Admin"
+            };
+
+            using (var stream = request.Evidence.OpenReadStream())
+            {
+                await _storageService.UploadFileAsync(blob.FilePath, stream);
+            }
+
+            _db.Blobs.Add(blob);
+            await _db.SaveChangesAsync();
             var booking = new Booking
             {
                 UserId = request.UserId,
@@ -85,8 +106,9 @@ namespace Roomify.Commons.RequestHandlers.ManageBooking
                 ApprovalCount = 1,
                 CreatedAt = DateTimeOffset.UtcNow,
                 CreatedBy = request.UserId,
-                StatusId = 1
-                
+                StatusId = 1,
+                BlobId = blob.Id,
+                IsCanceled = false
             };
             await _db.Bookings.AddAsync(booking);
             await _db.SaveChangesAsync();

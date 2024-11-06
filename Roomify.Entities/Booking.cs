@@ -28,7 +28,9 @@ public class Booking
     [Required]
     [StringLength(255)]
     public string BookingDescription { get; set; } = string.Empty;
-    public string? Evidence { get; set; }
+    public Guid BlobId { get; set; }
+    public Blob Blob { get; set; } = null!;
+    public bool IsCanceled { get; set; }   
     public DateTimeOffset? CheckInTime { get; set; }
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     public string? CreatedBy { get; set; }

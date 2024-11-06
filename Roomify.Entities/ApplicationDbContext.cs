@@ -50,5 +50,6 @@ namespace Roomify.Entities
         public DbSet<RoomType> RoomTypes => Set<RoomType>();
         public DbSet<RejectMessage> RejectMessages => Set<RejectMessage>();
         public DbSet<Schedule> Schedules => Set<Schedule>();
+        public DbSet<ManageRole> ManageRoles => Set<ManageRole>();
     }
 }

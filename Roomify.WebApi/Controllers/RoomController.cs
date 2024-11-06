@@ -19,7 +19,7 @@ namespace Roomify.WebApi.Controllers
         }
 
         [HttpPost("create-room")]
-        public async Task<ActionResult<CreateRoomResponseModel>> Post([FromBody] CreateRoomRequestModel request, [FromServices] IValidator<CreateRoomRequestModel> validator, CancellationToken ct)
+        public async Task<ActionResult<CreateRoomResponseModel>> Post([FromForm] CreateRoomRequestModel request, [FromServices] IValidator<CreateRoomRequestModel> validator, CancellationToken ct)
         {
             var validationResult = await validator.ValidateAsync(request, ct);
 
@@ -31,8 +31,8 @@ namespace Roomify.WebApi.Controllers
             var response = await _mediator.Send(request, ct);
             return response;
         }
-        [HttpGet]
-        public async Task<ActionResult<GetRoomResponseModel>> Get([FromQuery] GetRoomRequestModel request, CancellationToken cancellationToken)
+        [HttpGet("get-all-room")]
+        public async Task<ActionResult<GetRoomResponseModel>> GetAllRoom([FromQuery] GetRoomRequestModel request, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(request, cancellationToken);
             if (result == null)
@@ -42,7 +42,7 @@ namespace Roomify.WebApi.Controllers
             return Ok(result);
         }
         [HttpGet("get-user-view")]
-        public async Task<ActionResult<GetRoomUserViewResponseModel>> Get([FromQuery] GetRoomUserViewRequestModel request, CancellationToken cancellationToken)
+        public async Task<ActionResult<GetRoomUserViewResponseModel>> GetRoomUser([FromQuery] GetRoomUserViewRequestModel request, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(request, cancellationToken);
             if (result == null)
@@ -52,14 +52,14 @@ namespace Roomify.WebApi.Controllers
             return Ok(result);
         }
         [HttpGet("{id}")]
-        public async Task<ActionResult<GetRoomDetailResponseModel>> Get(int id, CancellationToken cancellationToken)
+        public async Task<ActionResult<GetRoomDetailResponseModel>> GetRoom(int id, CancellationToken cancellationToken)
         {
             var request = new GetRoomDetailRequestModel { RoomId = id };
             var result = await _mediator.Send(request, cancellationToken);
             return Ok(result);
         }
         [HttpPatch("{id}")]
-        public async Task<ActionResult<UpdateRoomResponseModel>> Put(int id, [FromBody] UpdateRoomModel request, 
+        public async Task<ActionResult<UpdateRoomResponseModel>> Put(int id, [FromForm] UpdateRoomModel request, 
             [FromServices] IValidator<UpdateRoomRequestModel> validator, CancellationToken ct)
         {
             var model = new UpdateRoomRequestModel
@@ -70,6 +70,7 @@ namespace Roomify.WebApi.Controllers
                 RoomTypeId = request.RoomTypeId,
                 BuildingId = request.BuildingId,
                 Capacity = request.Capacity,
+                RoomPicture = request.RoomPicture
             };
 
             var validationResult = await validator.ValidateAsync(model);
