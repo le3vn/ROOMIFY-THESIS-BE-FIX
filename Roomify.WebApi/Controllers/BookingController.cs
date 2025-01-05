@@ -3,6 +3,7 @@ using MediatR;
 using Roomify.Contracts.RequestModels.ManageBooking;
 using Roomify.Contracts.ResponseModels.ManageBooking;
 using System.Threading.Tasks;
+using Roomify.Commons.RequestModels.ManageBooking;
 
 namespace Roomify.Controllers
 {
@@ -17,20 +18,31 @@ namespace Roomify.Controllers
         }
 
         [HttpPost("create-booking")]
-        public async Task<IActionResult> CreateBooking([FromBody] CreateBookingRequestModel request, CancellationToken cancellationToken)
+        public async Task<IActionResult> CreateBooking([FromForm] CreateBookingRequestModel request, CancellationToken cancellationToken)
         {
-            if (request == null)
+
+            if (string.IsNullOrWhiteSpace(request.UserId))
             {
-                return BadRequest("Invalid booking request.");
+                return BadRequest("UserId is required.");
             }
 
-            // Validate request
-            if (string.IsNullOrWhiteSpace(request.UserId) || request.RoomId <= 0 || request.SessionBookedList.Count == 0)
+            if (request.RoomId <= 0)
             {
-                return BadRequest("Missing required fields.");
+                return BadRequest("RoomId is invalid.");
             }
 
-            // Send the request with cancellation token
+            if (request.SessionBookedList == null || request.SessionBookedList.Count == 0)
+            {
+                return BadRequest("SessionBookedList is required.");
+            }
+
+            // Log or inspect the list to ensure it's being bound correctly.
+            foreach (var sessionId in request.SessionBookedList)
+            {
+                Console.WriteLine($"SessionId: {sessionId}");
+            }
+
+            // Continue with the rest of the logic...
             var response = await _mediator.Send(request, cancellationToken);
 
             if (response.Success == "true")
@@ -42,6 +54,8 @@ namespace Roomify.Controllers
                 return BadRequest(response.Message);
             }
         }
+
+
         [HttpPost("approve")]
         public async Task<IActionResult> ApproveBooking([FromBody] ApproveBookingRequestModel request, CancellationToken cancellationToken)
         {
@@ -98,8 +112,121 @@ namespace Roomify.Controllers
 
             return BadRequest(response);
         }
-        [HttpGet]
+        [HttpGet("get-approver-view")]
         public async Task<ActionResult<GetApproverViewResponseModel>> Get([FromQuery] GetApproverViewRequestModel request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
+        }
+        [HttpGet("get-user-view")]
+        public async Task<ActionResult<GetBookingUserViewResponseModel>> GetUserView([FromQuery] GetBookingUserViewRequestModel request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
+        }
+        [HttpGet("get-available-session")]
+        public async Task<ActionResult<GetSessionAvailableResponseModel>> Get([FromQuery] GetSessionAvailableRequestModel request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
+        }
+        [HttpGet("get-booking-traffic")]
+        public async Task<ActionResult<GetAllBookingResponseModel>> Get([FromQuery] GetAllBookingRequestModel request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
+        }
+        [HttpPost("cancel-booking")]
+        public async Task<ActionResult<CancelBookingResponseModel>> Post([FromBody] CancelBookingRequestModel request, CancellationToken ct)
+        {
+            var response = await _mediator.Send(request, ct);
+            return response;
+        }
+        [HttpPost("update-booking")]
+        public async Task<ActionResult<UpdateBookingRoomResponseModel>> Post([FromBody] UpdateBookingRoomRequestModel request, CancellationToken ct)
+        {
+            var response = await _mediator.Send(request, ct);
+            return response;
+        }
+
+        [HttpGet("get-all-equipment")]
+        public async Task<ActionResult<GetEquipmentResponseModel>> GetAllEquipment([FromQuery] GetEquipmentRequestModel request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
+        }
+        [HttpGet("get-lecturer-subject")]
+        public async Task<ActionResult<GetLecturerSubjectResponseModel>> GetLecturerSubject([FromQuery] GetLecturerSubjectRequestModel request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
+        }
+        [HttpGet("get-institutional-id")]
+        public async Task<ActionResult<GetInstitutionalIdResponseModel>> GetInstitutionalId([FromQuery] GetInstitutionalIdRequestModel request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
+        }
+        [HttpGet("get-reject-message")]
+        public async Task<ActionResult<GetRejectmessageResponseModel>> GetRejectMessage([FromQuery] GetRejectMessageRequestModel request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
+        }
+        [HttpGet("get-booking-detail")]
+        public async Task<ActionResult<GetBookingDetailResponseModel>> GetBookingDetail([FromQuery] GetBookingDetailRequestModel request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
+        }
+        [HttpGet("get-approver-history")]
+        public async Task<ActionResult<GetApproverHistoryResponseModel>> GetApprovalHistory([FromQuery] GetApproverHistoryRequestModel request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
+        }
+        [HttpGet("get-all-booking")]
+        public async Task<ActionResult<GetBookingToManageResponseModel>> Get([FromQuery] GetBookingToManageRequestModel request, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(request, cancellationToken);
             if (result == null)

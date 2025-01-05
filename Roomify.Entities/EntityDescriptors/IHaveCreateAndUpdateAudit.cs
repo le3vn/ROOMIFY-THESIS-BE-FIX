@@ -2,7 +2,7 @@
 {
     public interface IHaveCreateAndUpdateAudit : IHaveCreateOnlyAudit
     {
-        public DateTime UpdatedAt { get; set; }
+        public DateTimeOffset UpdatedAt { get; set; }
 
         public string? UpdatedBy { get; set; }
     }

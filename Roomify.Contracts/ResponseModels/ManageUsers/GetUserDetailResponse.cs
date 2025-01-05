@@ -11,5 +11,6 @@
         public string Email { set; get; } = "";
 
         public bool IsEnabled { set; get; }
+        public string MinioUrl { get; set; } = "";
     }
 }

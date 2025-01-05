@@ -1,5 +1,6 @@
 using System;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Roomify.Contracts.ResponseModels.ManageRoom;
 
 namespace Roomify.Contracts.RequestModels.ManageRoom;
@@ -11,4 +12,6 @@ public class CreateRoomRequestModel : IRequest<CreateRoomResponseModel>
     public int RoomTypeId { get; set; }
     public int BuildingId { get; set; }
     public int Capacity { get; set; }
+    public int RoomGroupId { get; set; }
+    public IFormFile RoomPicture { get; set; } = null!;
 }

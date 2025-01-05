@@ -15,6 +15,13 @@ public class GetApproverViewmodel
     public string Name { get; set; } = string.Empty;
     public int RoomId { get; set; }
     public string RoomName { get; set;} = string.Empty;
+    public string MinioUrl { get; set; } = "";
+    public bool IsCanceled { get; set; }
+    public string RoomMinioUrl { get; set; } ="";
+    public string? BookingOrganizationName { get; set; }
+    public string BookingInstitutionalId { get; set; } = "";
+    public string UserRole { get; set; } = "";
+    public string BookerMinioUrl { get; set; } ="";
     public List<SessionBookedList> SessionList { get; set; } = new List<SessionBookedList>();
     public List<ApproverHistoryList> ApproverHistory { get; set; } = new List<ApproverHistoryList>();
 }
@@ -29,6 +36,8 @@ public class ApproverHistoryList
 {
     public string ApproverUserId { get; set; } =string.Empty;
     public string ApproverUserName { get; set; } = string.Empty;
+    public string ApproverMinioUrl { get; set; } = string.Empty;
     public int StatusId { get; set; }
     public string StatusName { get; set; } = string.Empty;
+    public DateTime ApprovedAt { get; set; }
 }

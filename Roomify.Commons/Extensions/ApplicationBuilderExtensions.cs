@@ -7,6 +7,11 @@ using Roomify.Validators.ManageUsers;
 using FluentValidation;
 using MassTransit;
 using MediatR;
+using Minio;
+using Minio.DataModel;
+using Microsoft.Extensions.Options;
+using System.IO;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.DataProtection;
@@ -23,6 +28,8 @@ using Serilog.Formatting.Compact;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using static OpenIddict.Abstractions.OpenIddictConstants;
+using Roomify.Commons.Extensions;
+using Roomify.Commons.Services;
 
 namespace Microsoft.Extensions.Hosting
 {
@@ -135,7 +142,22 @@ namespace Microsoft.Extensions.Hosting
             services.AddValidatorsFromAssemblyContaining<CreateUserRequestValidator>();
             services.AddMediatR(config => config.RegisterServicesFromAssemblies(typeof(CreateUserRequestHandler).Assembly));
         }
+        public static void AddMinIoService(this IServiceCollection services, Action<MinIoOptions>? optionsBuilder = default)
+        {
+            var opts = new MinIoOptions();
+            optionsBuilder?.Invoke(opts);
 
+            services.AddSingleton(di =>
+            {
+                return (MinioClient)new MinioClient()
+                    .WithEndpoint(opts.EndPoint)
+                    .WithCredentials(opts.AccessKey, opts.ServerKey)
+                    .WithSSL(opts.IsUseSsl)
+                    .Build();
+            });
+
+            services.AddTransient<IStorageService, StorageService>();
+        }
         public static void AddOpenIdConnectServer(this IServiceCollection services, Action<OpenIdConnectServerOptions>? optionsBuilder = default)
         {
             var opts = new OpenIdConnectServerOptions();

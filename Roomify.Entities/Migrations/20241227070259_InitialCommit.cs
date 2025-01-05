@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Roomify.Entities.Migrations
 {
     /// <inheritdoc />
-    public partial class FirstMigrationDB : Migration
+    public partial class InitialCommit : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -30,57 +30,14 @@ namespace Roomify.Entities.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetUsers",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "character varying(36)", maxLength: 36, nullable: false),
-                    GivenName = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
-                    FamilyName = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
-                    Picture = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false),
-                    Gender = table.Column<string>(type: "character varying(8)", maxLength: 8, nullable: false),
-                    Birthdate = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
-                    StreetAddress = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    City = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
-                    Province = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
-                    PostalCode = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: false),
-                    Country = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
-                    IsEnabled = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    CreatedBy = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedBy = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(type: "boolean", nullable: false),
-                    PasswordHash = table.Column<string>(type: "text", nullable: true),
-                    SecurityStamp = table.Column<string>(type: "text", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(type: "boolean", nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(type: "boolean", nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    LockoutEnabled = table.Column<bool>(type: "boolean", nullable: false),
-                    AccessFailedCount = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Blobs",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "character varying(26)", maxLength: 26, nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     FileName = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     FilePath = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     ContentType = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    ReferencedByTable = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
-                    ReferencedByColumn = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
-                    ReferencedByRowId = table.Column<string>(type: "character varying(450)", maxLength: 450, nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true)
                 },
                 constraints: table =>
@@ -100,6 +57,21 @@ namespace Roomify.Entities.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DataProtectionKeys", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Equipments",
+                columns: table => new
+                {
+                    EquipmentId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    EquipmentName = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Equipments", x => x.EquipmentId);
                 });
 
             migrationBuilder.CreateTable(
@@ -216,6 +188,101 @@ namespace Roomify.Entities.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AspNetUsers",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "character varying(36)", maxLength: 36, nullable: false),
+                    GivenName = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    FamilyName = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    Picture = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false),
+                    Gender = table.Column<string>(type: "character varying(8)", maxLength: 8, nullable: false),
+                    Birthdate = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
+                    StreetAddress = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    City = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    Province = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    PostalCode = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: false),
+                    Country = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    IsEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedBy = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    BlobId = table.Column<Guid>(type: "uuid", nullable: true),
+                    DefaultRoleId = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "text", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AspNetUsers_Blobs_BlobId",
+                        column: x => x.BlobId,
+                        principalTable: "Blobs",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Buildings",
+                columns: table => new
+                {
+                    BuildingId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    BlobId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Buildings", x => x.BuildingId);
+                    table.ForeignKey(
+                        name: "FK_Buildings_Blobs_BlobId",
+                        column: x => x.BlobId,
+                        principalTable: "Blobs",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OpenIddictAuthorizations",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "character varying(36)", maxLength: 36, nullable: false),
+                    ApplicationId = table.Column<string>(type: "character varying(36)", nullable: true),
+                    ConcurrencyToken = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    CreationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Properties = table.Column<string>(type: "text", nullable: true),
+                    Scopes = table.Column<string>(type: "text", nullable: true),
+                    Status = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    Subject = table.Column<string>(type: "character varying(400)", maxLength: 400, nullable: true),
+                    Type = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OpenIddictAuthorizations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OpenIddictAuthorizations_OpenIddictApplications_Application~",
+                        column: x => x.ApplicationId,
+                        principalTable: "OpenIddictApplications",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetUserClaims",
                 columns: table => new
                 {
@@ -301,49 +368,106 @@ namespace Roomify.Entities.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Buildings",
+                name: "InstitutionalNumbers",
                 columns: table => new
                 {
-                    BuildingId = table.Column<int>(type: "integer", nullable: false)
+                    InstitutionalId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    BuildingPictureId = table.Column<string>(type: "text", nullable: false),
-                    BlobId = table.Column<string>(type: "character varying(26)", nullable: true),
+                    UserId = table.Column<string>(type: "character varying(36)", nullable: false),
+                    LecturersId = table.Column<string>(type: "text", nullable: true),
+                    StaffsId = table.Column<string>(type: "text", nullable: true),
+                    StudentsId = table.Column<string>(type: "text", nullable: true),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Buildings", x => x.BuildingId);
+                    table.PrimaryKey("PK_InstitutionalNumbers", x => x.InstitutionalId);
                     table.ForeignKey(
-                        name: "FK_Buildings_Blobs_BlobId",
-                        column: x => x.BlobId,
-                        principalTable: "Blobs",
-                        principalColumn: "Id");
+                        name: "FK_InstitutionalNumbers_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "OpenIddictAuthorizations",
+                name: "ManageRoles",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "character varying(36)", maxLength: 36, nullable: false),
-                    ApplicationId = table.Column<string>(type: "character varying(36)", nullable: true),
-                    ConcurrencyToken = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
-                    CreationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    Properties = table.Column<string>(type: "text", nullable: true),
-                    Scopes = table.Column<string>(type: "text", nullable: true),
-                    Status = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
-                    Subject = table.Column<string>(type: "character varying(400)", maxLength: 400, nullable: true),
-                    Type = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true)
+                    ManageRolesId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<string>(type: "character varying(36)", nullable: false),
+                    RoleId = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OpenIddictAuthorizations", x => x.Id);
+                    table.PrimaryKey("PK_ManageRoles", x => x.ManageRolesId);
                     table.ForeignKey(
-                        name: "FK_OpenIddictAuthorizations_OpenIddictApplications_Application~",
-                        column: x => x.ApplicationId,
-                        principalTable: "OpenIddictApplications",
-                        principalColumn: "Id");
+                        name: "FK_ManageRoles_AspNetRoles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ManageRoles_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Organizations",
+                columns: table => new
+                {
+                    OrganizationId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    UserId = table.Column<string>(type: "character varying(36)", nullable: false),
+                    RoleId = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Organizations", x => x.OrganizationId);
+                    table.ForeignKey(
+                        name: "FK_Organizations_AspNetRoles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Organizations_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Subjects",
+                columns: table => new
+                {
+                    SubjectId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    SubjectName = table.Column<string>(type: "text", nullable: false),
+                    LecturerId = table.Column<string>(type: "character varying(36)", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Subjects", x => x.SubjectId);
+                    table.ForeignKey(
+                        name: "FK_Subjects_AspNetUsers_LecturerId",
+                        column: x => x.LecturerId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -353,11 +477,10 @@ namespace Roomify.Entities.Migrations
                     RoomId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     BuildingId = table.Column<int>(type: "integer", nullable: false),
-                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
                     RoomType = table.Column<int>(type: "integer", nullable: false),
                     Capacity = table.Column<int>(type: "integer", nullable: false),
-                    RoomPictureId = table.Column<string>(type: "text", nullable: false),
-                    BlobsId = table.Column<string>(type: "character varying(26)", nullable: true),
+                    BlobId = table.Column<Guid>(type: "uuid", nullable: false),
                     Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
@@ -368,10 +491,11 @@ namespace Roomify.Entities.Migrations
                 {
                     table.PrimaryKey("PK_Rooms", x => x.RoomId);
                     table.ForeignKey(
-                        name: "FK_Rooms_Blobs_BlobsId",
-                        column: x => x.BlobsId,
+                        name: "FK_Rooms_Blobs_BlobId",
+                        column: x => x.BlobId,
                         principalTable: "Blobs",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Rooms_Buildings_BuildingId",
                         column: x => x.BuildingId,
@@ -419,13 +543,17 @@ namespace Roomify.Entities.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     UserId = table.Column<string>(type: "character varying(36)", nullable: false),
+                    RoleId = table.Column<string>(type: "text", nullable: false),
+                    FullName = table.Column<string>(type: "text", nullable: true),
+                    OrganizationName = table.Column<string>(type: "text", nullable: true),
                     RoomId = table.Column<int>(type: "integer", nullable: false),
-                    BookingDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    BookingDate = table.Column<DateOnly>(type: "date", nullable: false),
                     StatusId = table.Column<int>(type: "integer", nullable: false),
                     ApprovalCount = table.Column<int>(type: "integer", nullable: false),
                     InstitutionalId = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     BookingDescription = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    Evidence = table.Column<string>(type: "text", nullable: true),
+                    BlobId = table.Column<Guid>(type: "uuid", nullable: true),
+                    IsCanceled = table.Column<bool>(type: "boolean", nullable: false),
                     CheckInTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "text", nullable: true),
@@ -436,11 +564,22 @@ namespace Roomify.Entities.Migrations
                 {
                     table.PrimaryKey("PK_Bookings", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_Bookings_AspNetRoles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_Bookings_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Bookings_Blobs_BlobId",
+                        column: x => x.BlobId,
+                        principalTable: "Blobs",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Bookings_Rooms_RoomId",
                         column: x => x.RoomId,
@@ -456,27 +595,39 @@ namespace Roomify.Entities.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "RoomGroups",
+                name: "Schedules",
                 columns: table => new
                 {
-                    GroupId = table.Column<int>(type: "integer", nullable: false)
+                    ScheduleId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     RoomId = table.Column<int>(type: "integer", nullable: false),
-                    ApproverLSCUserId = table.Column<string>(type: "text", nullable: true),
-                    ApproverSSOUserId = table.Column<string>(type: "text", nullable: true),
-                    ApproverSLCUserId = table.Column<string>(type: "text", nullable: true),
-                    ApproverBMUserId = table.Column<string>(type: "text", nullable: true),
+                    ScheduleDescription = table.Column<string>(type: "text", nullable: false),
+                    SessionId = table.Column<int>(type: "integer", nullable: false),
+                    UserId = table.Column<string>(type: "character varying(36)", nullable: false),
+                    Date = table.Column<DateOnly>(type: "date", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RoomGroups", x => x.GroupId);
+                    table.PrimaryKey("PK_Schedules", x => x.ScheduleId);
                     table.ForeignKey(
-                        name: "FK_RoomGroups_Rooms_RoomId",
+                        name: "FK_Schedules_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Schedules_Rooms_RoomId",
                         column: x => x.RoomId,
                         principalTable: "Rooms",
                         principalColumn: "RoomId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Schedules_Sessions_SessionId",
+                        column: x => x.SessionId,
+                        principalTable: "Sessions",
+                        principalColumn: "SessionId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -500,6 +651,100 @@ namespace Roomify.Entities.Migrations
                     table.PrimaryKey("PK_ApproverDetails", x => x.ApproverDetailsId);
                     table.ForeignKey(
                         name: "FK_ApproverDetails_Bookings_BookingId",
+                        column: x => x.BookingId,
+                        principalTable: "Bookings",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ApproverHistories",
+                columns: table => new
+                {
+                    ApproverHistoryId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    BookingId = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<string>(type: "character varying(36)", nullable: false),
+                    StatusId = table.Column<int>(type: "integer", nullable: false),
+                    ApprovalOrder = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApproverHistories", x => x.ApproverHistoryId);
+                    table.ForeignKey(
+                        name: "FK_ApproverHistories_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ApproverHistories_Bookings_BookingId",
+                        column: x => x.BookingId,
+                        principalTable: "Bookings",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ApproverHistories_Statuses_StatusId",
+                        column: x => x.StatusId,
+                        principalTable: "Statuses",
+                        principalColumn: "StatusId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "EquipmentBookeds",
+                columns: table => new
+                {
+                    EquipmentBookedId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    BookingId = table.Column<Guid>(type: "uuid", nullable: false),
+                    EquipmentId = table.Column<int>(type: "integer", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EquipmentBookeds", x => x.EquipmentBookedId);
+                    table.ForeignKey(
+                        name: "FK_EquipmentBookeds_Bookings_BookingId",
+                        column: x => x.BookingId,
+                        principalTable: "Bookings",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_EquipmentBookeds_Equipments_EquipmentId",
+                        column: x => x.EquipmentId,
+                        principalTable: "Equipments",
+                        principalColumn: "EquipmentId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "QRCodes",
+                columns: table => new
+                {
+                    QrCodeId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    BookingId = table.Column<Guid>(type: "uuid", nullable: false),
+                    BlobId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_QRCodes", x => x.QrCodeId);
+                    table.ForeignKey(
+                        name: "FK_QRCodes_Blobs_BlobId",
+                        column: x => x.BlobId,
+                        principalTable: "Blobs",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_QRCodes_Bookings_BookingId",
                         column: x => x.BookingId,
                         principalTable: "Bookings",
                         principalColumn: "Id",
@@ -561,6 +806,21 @@ namespace Roomify.Entities.Migrations
                 column: "BookingId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ApproverHistories_BookingId",
+                table: "ApproverHistories",
+                column: "BookingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApproverHistories_StatusId",
+                table: "ApproverHistories",
+                column: "StatusId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApproverHistories_UserId",
+                table: "ApproverHistories",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
                 column: "RoleId");
@@ -590,6 +850,11 @@ namespace Roomify.Entities.Migrations
                 name: "EmailIndex",
                 table: "AspNetUsers",
                 column: "NormalizedEmail");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_BlobId",
+                table: "AspNetUsers",
+                column: "BlobId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUsers_Email_gin_trgrm",
@@ -624,6 +889,16 @@ namespace Roomify.Entities.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Bookings_BlobId",
+                table: "Bookings",
+                column: "BlobId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Bookings_RoleId",
+                table: "Bookings",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Bookings_RoomId",
                 table: "Bookings",
                 column: "RoomId");
@@ -642,6 +917,31 @@ namespace Roomify.Entities.Migrations
                 name: "IX_Buildings_BlobId",
                 table: "Buildings",
                 column: "BlobId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EquipmentBookeds_BookingId",
+                table: "EquipmentBookeds",
+                column: "BookingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EquipmentBookeds_EquipmentId",
+                table: "EquipmentBookeds",
+                column: "EquipmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InstitutionalNumbers_UserId",
+                table: "InstitutionalNumbers",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ManageRoles_RoleId",
+                table: "ManageRoles",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ManageRoles_UserId",
+                table: "ManageRoles",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OpenIddictApplications_ClientId",
@@ -677,24 +977,54 @@ namespace Roomify.Entities.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Organizations_RoleId",
+                table: "Organizations",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Organizations_UserId",
+                table: "Organizations",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_QRCodes_BlobId",
+                table: "QRCodes",
+                column: "BlobId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_QRCodes_BookingId",
+                table: "QRCodes",
+                column: "BookingId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_RejectMessages_BookingId",
                 table: "RejectMessages",
                 column: "BookingId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RoomGroups_RoomId",
-                table: "RoomGroups",
-                column: "RoomId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Rooms_BlobsId",
+                name: "IX_Rooms_BlobId",
                 table: "Rooms",
-                column: "BlobsId");
+                column: "BlobId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Rooms_BuildingId",
                 table: "Rooms",
                 column: "BuildingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Schedules_RoomId",
+                table: "Schedules",
+                column: "RoomId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Schedules_SessionId",
+                table: "Schedules",
+                column: "SessionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Schedules_UserId",
+                table: "Schedules",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SessionBookeds_BookingId",
@@ -705,6 +1035,11 @@ namespace Roomify.Entities.Migrations
                 name: "IX_SessionBookeds_SessionId",
                 table: "SessionBookeds",
                 column: "SessionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Subjects_LecturerId",
+                table: "Subjects",
+                column: "LecturerId");
         }
 
         /// <inheritdoc />
@@ -712,6 +1047,9 @@ namespace Roomify.Entities.Migrations
         {
             migrationBuilder.DropTable(
                 name: "ApproverDetails");
+
+            migrationBuilder.DropTable(
+                name: "ApproverHistories");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
@@ -732,25 +1070,43 @@ namespace Roomify.Entities.Migrations
                 name: "DataProtectionKeys");
 
             migrationBuilder.DropTable(
+                name: "EquipmentBookeds");
+
+            migrationBuilder.DropTable(
+                name: "InstitutionalNumbers");
+
+            migrationBuilder.DropTable(
+                name: "ManageRoles");
+
+            migrationBuilder.DropTable(
                 name: "OpenIddictScopes");
 
             migrationBuilder.DropTable(
                 name: "OpenIddictTokens");
 
             migrationBuilder.DropTable(
-                name: "RejectMessages");
+                name: "Organizations");
 
             migrationBuilder.DropTable(
-                name: "RoomGroups");
+                name: "QRCodes");
+
+            migrationBuilder.DropTable(
+                name: "RejectMessages");
 
             migrationBuilder.DropTable(
                 name: "RoomTypes");
 
             migrationBuilder.DropTable(
+                name: "Schedules");
+
+            migrationBuilder.DropTable(
                 name: "SessionBookeds");
 
             migrationBuilder.DropTable(
-                name: "AspNetRoles");
+                name: "Subjects");
+
+            migrationBuilder.DropTable(
+                name: "Equipments");
 
             migrationBuilder.DropTable(
                 name: "OpenIddictAuthorizations");
@@ -763,6 +1119,9 @@ namespace Roomify.Entities.Migrations
 
             migrationBuilder.DropTable(
                 name: "OpenIddictApplications");
+
+            migrationBuilder.DropTable(
+                name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

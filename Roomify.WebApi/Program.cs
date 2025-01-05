@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Roomify.Commons.Extensions;
+using Roomify.Commons.Services;
+using Roomify.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -22,6 +25,7 @@ builder.Host.ConfigureSerilogWithSentry(options =>
 
 // Add services to the container.
 builder.Services.AddControllers();
+builder.Services.AddRazorPages();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -29,20 +33,36 @@ builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwa
 builder.Services.AddSwaggerGen();
 
 builder.Services.Configure<AppSettings>(builder.Configuration);
+builder.Services.Configure<OpenIdValidationOptions>(builder.Configuration.GetSection("OpenIdConnect"));
+builder.Services.Configure<MinIoOptions>(configuration.GetSection("MinIO"));
+builder.Services.AddTransient<IQRCodeGeneratorService, QRCodeGeneratorService>();
+
+
 builder.Services.AddApplicationServices(options =>
 {
     options.PostgreSqlConnectionString = configuration.GetConnectionString("PostgreSql");
     options.AddWebAppOnlyServices = true;
 });
+builder.Services.AddMinIoService(options =>
+{
+    options.EndPoint = configuration["MinIO:EndPoint"];
+    options.AccessKey = configuration["MinIO:AccessKey"];
+    options.ServerKey = configuration["MinIO:ServerKey"];
+    options.BucketName = configuration["MinIO:BucketName"];
+    options.IsUseSsl = configuration.GetValue<bool>("MinIO:IsUseSsl");
+});
+builder.Services.AddTransient<IStorageService, StorageService>();
+
 builder.Services.AddAutoMapper(typeof(UserController.UpdateUserApiModelAutoMapper));
 
-builder.Services.AddOpenIdConnectValidationAuthentication(options =>
+builder.Services.AddOpenIdConnectServer(options =>
 {
-    options.Authority = "http://localhost:5064";
-    options.ClientId = "api-server";
-    options.ClientSecret = "HelloWorld1!";
-    options.Audiences = new[] { "api-server" };
+    // Use api/generate-rsa-keys to get new random values 
+    options.SigningKey = configuration["oidcSigningKey"];
+    options.EncryptionKey = configuration["oidcEncryptionKey"];
 });
+builder.Services.AddEntityFrameworkCoreAutomaticMigrations();
+
 builder.Services.AddAuthorization(options =>
 {
     foreach (var policy in AuthorizationPolicyMap.Map)
@@ -52,6 +72,7 @@ builder.Services.AddAuthorization(options =>
     // Set fallback policy to apply authorization policy to all unprotected API
     // options.FallbackPolicy = AuthorizationPolicyMap.Map[AuthorizationPolicyNames.ScopeApi];
 });
+
 
 var app = builder.Build();
 

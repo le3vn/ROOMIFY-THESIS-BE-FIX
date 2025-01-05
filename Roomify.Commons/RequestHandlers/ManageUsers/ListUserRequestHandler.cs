@@ -1,49 +1,87 @@
-﻿using Roomify.Contracts.RequestModels.ManageUsers;
-using Roomify.Contracts.ResponseModels.ManageUsers;
+﻿using Roomify.Contracts.ResponseModels.ManageRoom;
+using Roomify.Contracts.RequestModels.ManageRoom;
 using Roomify.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Roomify.Contracts.RequestModels.ManageUsers;
+using Roomify.Contracts.ResponseModels.ManageUsers;
+using Roomify.Commons.Services;
 
-namespace Roomify.RequestHandlers.ManageUsers
+namespace Roomify.Commons.RequestHandlers.ManageUsers
 {
-    public class ListUserRequestHandler : IStreamRequestHandler<ListUserRequest, ListUserResponse>
+    public class ListUserRequestHandler : IRequestHandler<ListUserRequest, ListUserResponse>
     {
         private readonly ApplicationDbContext _db;
+        private readonly IStorageService _storageService;
 
-        public ListUserRequestHandler(ApplicationDbContext applicationDbContext)
+        public ListUserRequestHandler(ApplicationDbContext db, IStorageService storageService)
         {
-            _db = applicationDbContext;
+            _db = db;
+            _storageService = storageService;
         }
 
-        public IAsyncEnumerable<ListUserResponse> Handle(ListUserRequest request, CancellationToken cancellationToken)
+        public async Task<ListUserResponse> Handle(ListUserRequest request, CancellationToken cancellationToken)
         {
-            // GivenName is not unique, therefore table must also be sorted by Id which is unique
-            var query = _db.Paginate<User>().With(Q => Q.GivenName, Q => Q.Id, request.PreviousGivenName, request.PreviousId);
+            var query = _db.Users.Include(u => u.Blob).AsQueryable();
 
-            if (request.GivenName.HasValue())
+            if (!string.IsNullOrEmpty(request.GivenName))
             {
-                query = query.Where(Q => EF.Functions.TrigramsAreStrictWordSimilar(request.GivenName, Q.GivenName));
+                query = query.Where(r => r.GivenName.Contains(request.GivenName));
+            }
+            if (!string.IsNullOrEmpty(request.FamilyName))
+            {
+                query = query.Where(r => r.FamilyName.Contains(request.FamilyName));
+            }
+            if (!string.IsNullOrEmpty(request.Email))
+            {
+                query = query.Where(r => r.Email.Contains(request.Email));
+            }
+            
+            query = request.SortOrder.ToLower() == "desc" 
+                ? query.OrderByDescending(u => u.GivenName) 
+                : query.OrderBy(u => u.GivenName);
+
+            var users = await query.ToListAsync(cancellationToken);
+            var userModels = new List<UserModel>();
+
+            foreach (var user in users)
+            {
+                var userModel = new UserModel
+                {
+                    Id = user.Id,
+                    GivenName = user.GivenName,
+                    FamilyName = user.FamilyName,
+                    Email = user.Email
+                };
+
+                if (user.Blob != null && !string.IsNullOrEmpty(user.Blob.FilePath))
+                {
+                    try
+                    {
+                        userModel.MinioUrl = await _storageService.GetPresignedUrlReadAsync(user.Blob.FilePath);
+                    }
+                    catch (Exception)
+                    {
+                        userModel.MinioUrl = "Error generating URL"; 
+                    }
+                }
+                else
+                {
+                    userModel.MinioUrl = ""; // Or set a default value
+                }
+
+                userModels.Add(userModel);
             }
 
-            if (request.FamilyName.HasValue())
+            return new ListUserResponse
             {
-                query = query.Where(Q => EF.Functions.TrigramsAreStrictWordSimilar(request.FamilyName, Q.FamilyName));
-            }
-
-            if (request.Email.HasValue())
-            {
-                query = query.Where(Q => EF.Functions.TrigramsAreStrictWordSimilar(request.Email, Q.Email));
-            }
-
-            var result = query.Select(Q => new ListUserResponse
-            {
-                Id = Q.Id,
-                GivenName = Q.GivenName,
-                FamilyName = Q.FamilyName,
-                Email = Q.Email,
-            }).Take(10).AsAsyncEnumerable();
-
-            return result;
+                UserList = userModels,
+                TotalData = userModels.Count
+            };
         }
+
     }
 }
