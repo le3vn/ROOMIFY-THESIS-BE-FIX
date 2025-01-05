@@ -17,5 +17,6 @@ public class UpdateRoomModel
     public string Description { get; set; } = "";
     public int BuildingId { get; set; }
     public int Capacity { get; set; }
-    public IFormFile RoomPicture { get; set; } = null!;
+    public int RoomGroupId { get; set; }
+    public IFormFile? RoomPicture { get; set; } = null!;
 }

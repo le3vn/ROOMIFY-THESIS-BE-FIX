@@ -20,7 +20,7 @@ namespace Roomify.WebApi.Controllers
         }
 
         [HttpGet("get-user-role")]
-        public async Task<ActionResult<GetRoleToChangeResponseModel>> GetAllBuilding([FromQuery] GetRoleToChangeRequestModel request, CancellationToken cancellationToken)
+        public async Task<ActionResult<GetRoleToChangeResponseModel>> GetUserRole([FromQuery] GetRoleToChangeRequestModel request, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(request, cancellationToken);
             if (result == null)
@@ -45,6 +45,16 @@ namespace Roomify.WebApi.Controllers
             }
 
             return BadRequest(response.Message);
+        }
+        [HttpGet("get-display-name")]
+        public async Task<ActionResult<GetDisplayNameStudentOrganizationResponseModel>> GetRoomUser([FromQuery] GetDisplayNameStudentOrganizationRequestModel request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
         }
     }
 }

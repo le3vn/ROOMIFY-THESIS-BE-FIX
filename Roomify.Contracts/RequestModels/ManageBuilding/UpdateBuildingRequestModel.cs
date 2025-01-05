@@ -12,6 +12,6 @@ public class UpdateBuildingRequestModel : UpdateBuildingModel, IRequest<UpdateBu
 
 public class UpdateBuildingModel
 {
-    public string Name { get; set; } = "";
-    public IFormFile BuildingPicture { get; set; } = null!;
+    public string? Name { get; set; }
+    public IFormFile? BuildingPicture { get; set; } = null!;
 }

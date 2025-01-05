@@ -15,6 +15,12 @@ public class Schedule
    [ForeignKey("SessionId")]
     public int SessionId { get; set; }
     public Session? Sessions { get; set; }
+   [ForeignKey(nameof(User))]
+    public string UserId { get; set; } = "";
+    public User Users { get; set; } = null!;
+    [ForeignKey("BookingId")]
+    public Guid BookingId { get; set; }
+    public Booking? Bookings { get; set; }
     public DateOnly Date { get; set; }
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     public string? CreatedBy { get; set; }

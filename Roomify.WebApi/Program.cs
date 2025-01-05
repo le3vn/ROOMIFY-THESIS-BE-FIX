@@ -35,6 +35,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.Configure<AppSettings>(builder.Configuration);
 builder.Services.Configure<OpenIdValidationOptions>(builder.Configuration.GetSection("OpenIdConnect"));
 builder.Services.Configure<MinIoOptions>(configuration.GetSection("MinIO"));
+builder.Services.AddTransient<IQRCodeGeneratorService, QRCodeGeneratorService>();
+
 
 builder.Services.AddApplicationServices(options =>
 {
@@ -50,6 +52,7 @@ builder.Services.AddMinIoService(options =>
     options.IsUseSsl = configuration.GetValue<bool>("MinIO:IsUseSsl");
 });
 builder.Services.AddTransient<IStorageService, StorageService>();
+
 builder.Services.AddAutoMapper(typeof(UserController.UpdateUserApiModelAutoMapper));
 
 builder.Services.AddOpenIdConnectServer(options =>
@@ -69,6 +72,7 @@ builder.Services.AddAuthorization(options =>
     // Set fallback policy to apply authorization policy to all unprotected API
     // options.FallbackPolicy = AuthorizationPolicyMap.Map[AuthorizationPolicyNames.ScopeApi];
 });
+
 
 var app = builder.Build();
 

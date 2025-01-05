@@ -41,6 +41,10 @@ namespace Roomify.Commons.RequestHandlers.ManageRoom
                     minioUrl = "Error generating URL"; 
                 }
             }
+            // var roomGroup = await _db.RoomGroups
+            //     .Where(s => s.RoomId == room.RoomId)
+            //     .FirstOrDefaultAsync(cancellationToken);
+
             return new GetRoomDetailResponseModel
             {
                 Name = room.Name, 
@@ -48,14 +52,17 @@ namespace Roomify.Commons.RequestHandlers.ManageRoom
                     .Where(rt => rt.RoomTypeId == room.RoomType)
                     .Select(rt => rt.Name)
                     .FirstOrDefaultAsync(cancellationToken) ?? "Unknown",
+                RoomTypeId = room.RoomType,
                 Building = await _db.Buildings
                     .Where(b => b.BuildingId == room.BuildingId)
                     .Select(b => b.Name)
                     .FirstOrDefaultAsync(cancellationToken) ?? "Unknown",
-                
+                BuildingId = room.BuildingId,
                 Capacity = room.Capacity,
                 MinioUrl = minioUrl,
-                Description = room.Description, 
+                Description = room.Description,
+                GroupName = await _db.RoomGroups.Where(s => s.RoomGroupId == room.RoomGroupId).Select(s => s.Name).FirstOrDefaultAsync(cancellationToken) ?? "Unknown",
+                RoomGroupId = room.RoomGroupId,
                 CreatedAt = room.CreatedAt,
                 CreatedBy = room.CreatedBy,
                 UpdatedAt = room.UpdatedAt,

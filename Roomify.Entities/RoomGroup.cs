@@ -7,10 +7,8 @@ namespace Roomify.Entities;
 public class RoomGroup
 {
     [Key]
-    public int GroupId { get; set; }
-    [ForeignKey("RoomId")]
-    public int RoomId { get; set; }
-    public Room? Room { get; set; }
+    public int RoomGroupId { get; set; }
+    public string Name { get; set; } = string.Empty;
     public string? ApproverLSCUserId { get; set; }
     public string? ApproverSSOUserId { get; set; }
     public string? ApproverSLCUserId { get; set; }

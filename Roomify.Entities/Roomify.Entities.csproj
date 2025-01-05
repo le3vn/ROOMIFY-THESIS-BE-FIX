@@ -19,8 +19,4 @@
     <PackageReference Include="Ulid" Version="1.3.3" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Migrations/" />
-  </ItemGroup>
-
 </Project>

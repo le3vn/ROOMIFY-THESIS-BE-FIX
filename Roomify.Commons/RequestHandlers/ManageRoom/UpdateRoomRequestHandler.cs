@@ -23,21 +23,51 @@ namespace Roomify.Commons.RequestHandlers.ManageRoom
 
         public async Task<UpdateRoomResponseModel> Handle(UpdateRoomRequestModel request, CancellationToken cancellationToken)
         {
-            var room = await _db.Rooms.Where(Q => Q.RoomId == request.RoomId).FirstOrDefaultAsync(cancellationToken);
-            if (room == null) return new UpdateRoomResponseModel();
-            var blobId = room.BlobId;
+            // Fetch the room and related RoomGroups
+            var room = await _db.Rooms
+                .Include(r => r.RoomGroups)
+                .Where(Q => Q.RoomId == request.RoomId)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (room == null)
+            {
+                return new UpdateRoomResponseModel
+                {
+                    Success = "false",
+                    Message = "Room not found"
+                };
+            }
+
+            // Check if the RoomGroupId exists
+            var roomGroup = await _db.RoomGroups
+                .Where(rg => rg.RoomGroupId == request.RoomGroupId)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (roomGroup == null)
+            {
+                return new UpdateRoomResponseModel
+                {
+                    Success = "false",
+                    Message = "RoomGroup not found"
+                };
+            }
+
             var dateNow = DateTime.UtcNow;
+
+            // Handle RoomPicture update
             if (request.RoomPicture != null)
             {
-                var deleteBlob = await _db.Blobs.Where(Q => Q.Id == blobId).FirstOrDefaultAsync(cancellationToken);
+                // Delete existing blob if it exists
+                var deleteBlob = await _db.Blobs.Where(Q => Q.Id == room.BlobId).FirstOrDefaultAsync(cancellationToken);
                 if (deleteBlob != null)
                 {
                     _db.Blobs.Remove(deleteBlob);
                 }
-                blobId = Guid.NewGuid();
+
+                // Create a new blob for the updated image
                 var newBlob = new Blob
                 {
-                    Id = blobId,
+                    Id = Guid.NewGuid(),
                     FileName = request.RoomPicture.FileName,
                     FilePath = $"{BlobPath.RoomsImage}/{request.RoomPicture.FileName}",
                     ContentType = request.RoomPicture.ContentType,
@@ -51,26 +81,27 @@ namespace Roomify.Commons.RequestHandlers.ManageRoom
                 }
 
                 _db.Blobs.Add(newBlob);
+                room.BlobId = newBlob.Id; // Update room with the new blobId
             }
-
+            // Update Room details
             room.Name = request.Name;
             room.BuildingId = request.BuildingId;
             room.RoomType = request.RoomTypeId;
             room.Description = request.Description;
             room.Capacity = request.Capacity;
-            room.BlobId = blobId;
             room.UpdatedAt = DateTimeOffset.UtcNow;
             room.UpdatedBy = "Admin";
-            _db.Update(room);
+            room.RoomGroupId = request.RoomGroupId;  // Set the new or existing RoomGroupId
 
+            // Save changes to the database
             await _db.SaveChangesAsync(cancellationToken);
 
-            return new UpdateRoomResponseModel { 
-                Success = "Success",
-                Message = "Succeed Updating Room"
-
-            };        
+            return new UpdateRoomResponseModel
+            {
+                Success = "true",
+                Message = "Successfully updated room"
+            };
         }
-
     }
 }
+

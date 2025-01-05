@@ -6,140 +6,173 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Roomify.Commons.Services;
+using Roomify.Commons.Constants;
 
 namespace Roomify.Commons.RequestHandlers.ManageRoom
 {
     public class ApproveBookingRequestHandler : IRequestHandler<ApproveBookingRequestModel, ApproveBookingResponseModel>
-    {
-        private readonly ApplicationDbContext _db;
+{
+    private readonly ApplicationDbContext _db;
+    private readonly IQRCodeGeneratorService _qrCodeGeneratorService;
+    public readonly IStorageService _storageService;
 
-        public ApproveBookingRequestHandler(ApplicationDbContext db)
+    public ApproveBookingRequestHandler(ApplicationDbContext db, IQRCodeGeneratorService qRCodeGeneratorService, IStorageService storageService)
+    {
+        _db = db;
+        _qrCodeGeneratorService = qRCodeGeneratorService;
+        _storageService = storageService;
+    }
+
+    public async Task<ApproveBookingResponseModel> Handle(ApproveBookingRequestModel request, CancellationToken cancellationToken)
+    {
+        // Fetch the ApproverDetail for the given BookingId and UserId
+        var approverDetail = await _db.ApproverDetails
+            .FirstOrDefaultAsync(ad => ad.BookingId == request.BookingId && ad.AppproverUserId == request.UserId, cancellationToken);
+
+        if (approverDetail == null)
         {
-            _db = db;
+            return new ApproveBookingResponseModel
+            {
+                Success = "false",
+                Message = "No approver found for this booking and user."
+            };
         }
 
-        public async Task<ApproveBookingResponseModel> Handle(ApproveBookingRequestModel request, CancellationToken cancellationToken)
+        // Process the approval/rejection
+        if (approverDetail.ApprovalOrder == 1)
         {
-            // Fetch the ApproverDetail for the given BookingId and UserId
-            var approverDetail = await _db.ApproverDetails
-                .FirstOrDefaultAsync(ad => ad.BookingId == request.BookingId && ad.AppproverUserId == request.UserId, cancellationToken);
+            // Case 1: First approver can approve/reject the booking
+            await ProcessApprovalAsync(approverDetail, request, cancellationToken);
+        }
+        else
+        {
+            // Case 2: Check if previous approval exists
+            var previousApproval = await _db.ApproverDetails
+                .FirstOrDefaultAsync(ad => ad.BookingId == request.BookingId && ad.ApprovalOrder == approverDetail.ApprovalOrder - 1, cancellationToken);
 
-            if (approverDetail == null)
+            if (previousApproval == null || previousApproval.UpdatedAt == null || !previousApproval.IsApproved)
             {
                 return new ApproveBookingResponseModel
                 {
                     Success = "false",
-                    Message = "No approver found for this booking and user."
+                    Message = "Previous approval not completed or rejected."
                 };
             }
 
-            // Check the ApprovalOrder
-            if (approverDetail.ApprovalOrder == 1)
-            {
-                // Case 1: First approver can approve/reject the booking
-                await ProcessApprovalAsync(approverDetail, request, cancellationToken);
-            }
-            else
-            {
-                // Case 2: Check previous approval
-                var previousApproval = await _db.ApproverDetails
-                    .FirstOrDefaultAsync(ad => ad.BookingId == request.BookingId && ad.ApprovalOrder == approverDetail.ApprovalOrder - 1, cancellationToken);
-
-                if (previousApproval == null || previousApproval.UpdatedAt == null || !previousApproval.IsApproved)
-                {
-                    return new ApproveBookingResponseModel
-                    {
-                        Success = "false",
-                        Message = "Previous approval not completed or rejected."
-                    };
-                }
-
-                // Proceed with the current approval
-                await ProcessApprovalAsync(approverDetail, request, cancellationToken);
-            }
-
-            return new ApproveBookingResponseModel
-            {
-                Success = "true",
-                Message = "Booking approval processed successfully."
-            };
+            // Proceed with the current approval
+            await ProcessApprovalAsync(approverDetail, request, cancellationToken);
         }
 
-        private async Task ProcessApprovalAsync(ApproverDetail approverDetail, ApproveBookingRequestModel request, CancellationToken cancellationToken)
+        return new ApproveBookingResponseModel
         {
-            // Update ApproverDetails
-            approverDetail.IsApproved = request.IsApproved;
-            approverDetail.UpdatedAt = DateTimeOffset.UtcNow;
-            approverDetail.UpdatedBy = "Admin";
+            Success = "true",
+            Message = "Booking approval processed successfully."
+        };
+    }
 
-            // Save ApproverDetails changes
+    private async Task ProcessApprovalAsync(ApproverDetail approverDetail, ApproveBookingRequestModel request, CancellationToken cancellationToken)
+    {
+        var bookings = await _db.Bookings
+                .Where(r => r.Id == request.BookingId).Select(r => r.RoomId)
+                .FirstOrDefaultAsync();
+
+        var room = await _db.Rooms
+                .Where(r => r.RoomId == bookings)
+                .FirstOrDefaultAsync();
+        // Update the current approver's details (whether approving or rejecting)
+        approverDetail.IsApproved = request.IsApproved;
+        approverDetail.UpdatedAt = DateTimeOffset.UtcNow;
+        approverDetail.UpdatedBy = "Admin";  // This should ideally be the user making the request
+
+        // Add a record to the ApprovalHistory table
+        _db.ApproverHistories.Add(new ApproverHistory
+        {
+            BookingId = request.BookingId,
+            UserId = request.UserId,
+            StatusId = request.IsApproved ? 2 : 3,  // 2 is approved, 3 is rejected
+            ApprovalOrder = approverDetail.ApprovalOrder,
+            CreatedAt = DateTimeOffset.UtcNow,
+            CreatedBy = request.UserId  // Replace "Admin" with the actual user if applicable
+        });
+
+        // If the booking is being rejected, update all subsequent approvers' details
+        if (!request.IsApproved)
+        {
+            // Mark all subsequent approvers as rejected by updating their ApproverDetails
+            var subsequentApprovers = await _db.ApproverDetails
+                .Where(ad => ad.BookingId == request.BookingId && ad.ApprovalOrder > approverDetail.ApprovalOrder)
+                .ToListAsync(cancellationToken);
+
+            foreach (var subsequentApprover in subsequentApprovers)
+            {
+                subsequentApprover.IsApproved = false;
+                subsequentApprover.UpdatedAt = DateTimeOffset.UtcNow;
+                subsequentApprover.UpdatedBy = "Admin";  // Again, this can be the actual user
+            }
+
+            // Save all changes to the ApproverDetails (current and subsequent approvers)
             await _db.SaveChangesAsync(cancellationToken);
 
-            // Update Booking status based on approval or rejection
+            // Notify the user that the booking was rejected
             var booking = await _db.Bookings.FirstOrDefaultAsync(b => b.Id == request.BookingId, cancellationToken);
-            if (booking == null) return;
-
-            booking.ApprovalCount -= 1;
-
-            if (request.IsApproved)
+            if (booking != null)
             {
-                if(booking.ApprovalCount == 0){
-                // Case 1.1: Approved
-                     booking.StatusId = 2;
+                await AddNotificationToDb(booking.UserId, 
+                    "Booking Rejected", 
+                    $"Your booking for room {room?.Name} has been rejected. Check your On-going page for details.", 
+                    "SYSTEM");
+            }
+        }
+        else
+        {
+            // If the current approver is approving, just update their own record
+            await _db.SaveChangesAsync(cancellationToken);
 
-                    // Fetch the sessions booked for this booking
-                    var sessionBookeds = await _db.SessionBookeds
-                        .Where(sb => sb.BookingId == request.BookingId)
-                        .ToListAsync(cancellationToken);
+            // If not the last approver, notify the next approver
+            var nextApprover = await _db.ApproverDetails
+                .FirstOrDefaultAsync(ad => ad.BookingId == request.BookingId && ad.ApprovalOrder == approverDetail.ApprovalOrder + 1, cancellationToken);
 
-                    // If no sessions are booked, handle appropriately
-                    if (sessionBookeds.Count == 0)
-                    {
-                        throw new Exception("No sessions booked for this booking.");
-                    }
-
-                    // Add Schedule entries for each booked session
-                    foreach (var sessionBooked in sessionBookeds)
-                    {
-                        var schedule = new Schedule
-                        {
-                            RoomId = booking.RoomId,
-                            SessionId = sessionBooked.SessionId,  // Use the SessionId from the booked session
-                            ScheduleDescription = booking.BookingDescription,
-                            CreatedAt = DateTimeOffset.UtcNow,
-                            CreatedBy = "Admin",
-                            Date = DateOnly.FromDateTime(booking.BookingDate)
-
-                        };
-
-                        _db.Schedules.Add(schedule);
-                    }
-                }
+            if (nextApprover != null)
+            {
+                // Notify the next approver
+                await AddNotificationToDb(nextApprover.AppproverUserId, 
+                    "Approval Needed", 
+                    $"Your approval is needed for for room {room?.Name}. Please review it.", 
+                    "SYSTEM");
             }
             else
             {
-                // Case 1.2 / 2.1: Rejected
-                
-                    booking.StatusId = 3; // Booking is rejected
-                
-
-                // Add rejection message
-                if (!string.IsNullOrWhiteSpace(request.RejectMessage))
+                // Last approver's decision: approve or reject the booking
+                var booking = await _db.Bookings.FirstOrDefaultAsync(b => b.Id == request.BookingId, cancellationToken);
+                if (booking != null)
                 {
-                    _db.RejectMessages.Add(new RejectMessage
-                    {
-                        BookingId = request.BookingId,
-                        Message = request.RejectMessage,
-                        CreatedAt = DateTimeOffset.UtcNow,
-                        CreatedBy = "Admin",
-                    });
+                    booking.StatusId = request.IsApproved ? 2 : 3;  // Approved or Rejected status
+                    await _db.SaveChangesAsync(cancellationToken);
+
+                    // Notify the user that the booking is fully approved or rejected
+                    await AddNotificationToDb(booking.UserId, 
+                        request.IsApproved ? "Booking Approved" : "Booking Rejected", 
+                        $"Your booking for room {room?.Name} has been { (request.IsApproved ? "approved" : "rejected") }. Check your On-going page for details.", 
+                        "SYSTEM");
                 }
             }
-            booking.UpdatedAt = DateTimeOffset.UtcNow;
-            booking.UpdatedBy = "Admin";
-
-            // Save Booking changes
-            await _db.SaveChangesAsync(cancellationToken);
         }
     }
+
+    private async Task AddNotificationToDb(string userId, string subject, string message, string createdBy)
+    {
+        var notification = new Notification
+        {
+            UserId = userId,
+            Subject = subject,
+            Message = message,
+            CreatedAt = DateTimeOffset.UtcNow,
+            CreatedBy = createdBy
+        };
+
+        await _db.Notifications.AddAsync(notification);
+        await _db.SaveChangesAsync();
+    }
+}
 }

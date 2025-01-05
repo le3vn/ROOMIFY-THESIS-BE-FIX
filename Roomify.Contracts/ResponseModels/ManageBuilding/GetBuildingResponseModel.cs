@@ -4,7 +4,7 @@ namespace Roomify.Contracts.ResponseModels.ManageBuilding;
 
 public class GetBuildingResponseModel
 {
-    public List<BuildingModel> RoomList { get; set; } = new List<BuildingModel>();
+    public List<BuildingModel> BuildingList { get; set; } = new List<BuildingModel>();
     public int TotalData { get; set; }
 }
 public class BuildingModel

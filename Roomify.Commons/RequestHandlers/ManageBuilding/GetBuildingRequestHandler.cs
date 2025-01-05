@@ -68,7 +68,7 @@ namespace Roomify.Commons.RequestHandlers.ManageBuilding
 
             return new GetBuildingResponseModel
             {
-                RoomList = buildingModels,
+                BuildingList = buildingModels,
                 TotalData = buildingModels.Count
             };
         }

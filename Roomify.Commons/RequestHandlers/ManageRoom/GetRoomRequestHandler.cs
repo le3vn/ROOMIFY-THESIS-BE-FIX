@@ -52,6 +52,7 @@ namespace Roomify.Commons.RequestHandlers.ManageRoom
             var rooms = await query.ToListAsync(cancellationToken);
             var roomModels = new List<GetRoomModel>();
 
+
             foreach (var room in rooms)
             {
                 var roomModel = new GetRoomModel
@@ -60,8 +61,10 @@ namespace Roomify.Commons.RequestHandlers.ManageRoom
                     Name = room.Name,
                     RoomType = _db.RoomTypes.Where(rt => rt.RoomTypeId == room.RoomType).Select(rt => rt.Name).FirstOrDefault() ?? "Unknown",
                     Building = _db.Buildings.Where(b => b.BuildingId == room.BuildingId).Select(b => b.Name).FirstOrDefault() ?? "Unknown",
+                    BuildingId = room.BuildingId,
                     Description = room.Description,
                     Capacity = room.Capacity,
+                    Group = _db.RoomGroups.Where(s => s.RoomGroupId == room.RoomGroupId).Select(s => s.Name).FirstOrDefault() ?? "Unknown",
                     CreatedAt = room.CreatedAt,
                     CreatedBy = room.CreatedBy,
                     UpdatedAt = room.UpdatedAt,

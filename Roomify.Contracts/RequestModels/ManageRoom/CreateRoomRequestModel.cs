@@ -12,5 +12,6 @@ public class CreateRoomRequestModel : IRequest<CreateRoomResponseModel>
     public int RoomTypeId { get; set; }
     public int BuildingId { get; set; }
     public int Capacity { get; set; }
+    public int RoomGroupId { get; set; }
     public IFormFile RoomPicture { get; set; } = null!;
 }

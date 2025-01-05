@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
 
 namespace Roomify.Entities;
 
@@ -12,11 +13,18 @@ public class Booking
     [ForeignKey(nameof(User))]
     public string UserId { get; set; } = "";
     public User Users { get; set; } = null!;
+
+    [ForeignKey(nameof(IdentityRole))]
+    public string RoleId { get; set; } ="";
+    public IdentityRole Role { get; set; } = null!; 
+
+    public string? FullName { get; set; }
+    public string? OrganizationName { get; set; }
         
     [ForeignKey("RoomId")]
     public int RoomId { get; set; }
     public Room? Rooms { get; set; }
-    public DateTime BookingDate { get; set; } 
+    public DateOnly BookingDate { get; set; } 
     
     [ForeignKey("StatusId")]
     public int StatusId { get; set; }
@@ -28,7 +36,7 @@ public class Booking
     [Required]
     [StringLength(255)]
     public string BookingDescription { get; set; } = string.Empty;
-    public Guid BlobId { get; set; }
+    public Guid? BlobId { get; set; }
     public Blob Blob { get; set; } = null!;
     public bool IsCanceled { get; set; }   
     public DateTimeOffset? CheckInTime { get; set; }

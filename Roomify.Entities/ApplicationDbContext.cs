@@ -51,5 +51,14 @@ namespace Roomify.Entities
         public DbSet<RejectMessage> RejectMessages => Set<RejectMessage>();
         public DbSet<Schedule> Schedules => Set<Schedule>();
         public DbSet<ManageRole> ManageRoles => Set<ManageRole>();
+        public DbSet<Organization> Organizations => Set<Organization>();
+        public DbSet<Subject> Subjects => Set<Subject>();
+        public DbSet<Equipment> Equipments => Set<Equipment>();
+        public DbSet<EquipmentBooked> EquipmentBookeds => Set<EquipmentBooked>();
+        public DbSet<InstitutionalNumber> InstitutionalNumbers => Set<InstitutionalNumber>();
+        public DbSet<QRCode> QRCodes => Set<QRCode>();
+        public DbSet<ApproverHistory> ApproverHistories => Set<ApproverHistory>();
+        public DbSet<Blocker> Blockers=> Set<Blocker>();
+        public DbSet<Notification> Notifications=> Set<Notification>();
     }
 }

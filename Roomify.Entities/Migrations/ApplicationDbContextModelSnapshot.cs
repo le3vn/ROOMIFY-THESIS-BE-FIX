@@ -17,7 +17,7 @@ namespace Roomify.Entities.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.3")
+                .HasAnnotation("ProductVersion", "8.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "pg_trgm");
@@ -426,6 +426,50 @@ namespace Roomify.Entities.Migrations
                     b.ToTable("ApproverDetails");
                 });
 
+            modelBuilder.Entity("Roomify.Entities.ApproverHistory", b =>
+                {
+                    b.Property<int>("ApproverHistoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ApproverHistoryId"));
+
+                    b.Property<int>("ApprovalOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("BookingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("StatusId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("character varying(36)");
+
+                    b.HasKey("ApproverHistoryId");
+
+                    b.HasIndex("BookingId");
+
+                    b.HasIndex("StatusId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ApproverHistories");
+                });
+
             modelBuilder.Entity("Roomify.Entities.Blob", b =>
                 {
                     b.Property<Guid>("Id")
@@ -459,6 +503,38 @@ namespace Roomify.Entities.Migrations
                     b.ToTable("Blobs");
                 });
 
+            modelBuilder.Entity("Roomify.Entities.Blocker", b =>
+                {
+                    b.Property<int>("BlockerId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("BlockerId"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
+
+                    b.HasKey("BlockerId");
+
+                    b.ToTable("Blockers");
+                });
+
             modelBuilder.Entity("Roomify.Entities.Booking", b =>
                 {
                     b.Property<Guid>("Id")
@@ -468,11 +544,11 @@ namespace Roomify.Entities.Migrations
                     b.Property<int>("ApprovalCount")
                         .HasColumnType("integer");
 
-                    b.Property<Guid>("BlobId")
+                    b.Property<Guid?>("BlobId")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("BookingDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateOnly>("BookingDate")
+                        .HasColumnType("date");
 
                     b.Property<string>("BookingDescription")
                         .IsRequired()
@@ -488,6 +564,9 @@ namespace Roomify.Entities.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
+                    b.Property<string>("FullName")
+                        .HasColumnType("text");
+
                     b.Property<string>("InstitutionalId")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -495,6 +574,13 @@ namespace Roomify.Entities.Migrations
 
                     b.Property<bool>("IsCanceled")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("OrganizationName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("RoomId")
                         .HasColumnType("integer");
@@ -515,6 +601,8 @@ namespace Roomify.Entities.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BlobId");
+
+                    b.HasIndex("RoleId");
 
                     b.HasIndex("RoomId");
 
@@ -560,6 +648,92 @@ namespace Roomify.Entities.Migrations
                     b.ToTable("Buildings");
                 });
 
+            modelBuilder.Entity("Roomify.Entities.Equipment", b =>
+                {
+                    b.Property<int>("EquipmentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("EquipmentId"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("EquipmentName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("EquipmentId");
+
+                    b.ToTable("Equipments");
+                });
+
+            modelBuilder.Entity("Roomify.Entities.EquipmentBooked", b =>
+                {
+                    b.Property<int>("EquipmentBookedId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("EquipmentBookedId"));
+
+                    b.Property<Guid>("BookingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int>("EquipmentId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("EquipmentBookedId");
+
+                    b.HasIndex("BookingId");
+
+                    b.HasIndex("EquipmentId");
+
+                    b.ToTable("EquipmentBookeds");
+                });
+
+            modelBuilder.Entity("Roomify.Entities.InstitutionalNumber", b =>
+                {
+                    b.Property<int>("InstitutionalId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("InstitutionalId"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LecturersId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("StaffsId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("StudentsId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("character varying(36)");
+
+                    b.HasKey("InstitutionalId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("InstitutionalNumbers");
+                });
+
             modelBuilder.Entity("Roomify.Entities.ManageRole", b =>
                 {
                     b.Property<int>("ManageRolesId")
@@ -589,6 +763,107 @@ namespace Roomify.Entities.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("ManageRoles");
+                });
+
+            modelBuilder.Entity("Roomify.Entities.Notification", b =>
+                {
+                    b.Property<int>("NotificationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("NotificationId"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("ReadAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("character varying(36)");
+
+                    b.HasKey("NotificationId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notifications");
+                });
+
+            modelBuilder.Entity("Roomify.Entities.Organization", b =>
+                {
+                    b.Property<int>("OrganizationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OrganizationId"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("character varying(36)");
+
+                    b.HasKey("OrganizationId");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Organizations");
+                });
+
+            modelBuilder.Entity("Roomify.Entities.QRCode", b =>
+                {
+                    b.Property<int>("QrCodeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("QrCodeId"));
+
+                    b.Property<Guid>("BlobId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BookingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("QrCodeId");
+
+                    b.HasIndex("BlobId");
+
+                    b.HasIndex("BookingId");
+
+                    b.ToTable("QRCodes");
                 });
 
             modelBuilder.Entity("Roomify.Entities.RejectMessage", b =>
@@ -648,8 +923,10 @@ namespace Roomify.Entities.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
+                        .HasColumnType("text");
+
+                    b.Property<int>("RoomGroupId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("RoomType")
                         .HasColumnType("integer");
@@ -666,16 +943,18 @@ namespace Roomify.Entities.Migrations
 
                     b.HasIndex("BuildingId");
 
+                    b.HasIndex("RoomGroupId");
+
                     b.ToTable("Rooms");
                 });
 
             modelBuilder.Entity("Roomify.Entities.RoomGroup", b =>
                 {
-                    b.Property<int>("GroupId")
+                    b.Property<int>("RoomGroupId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("GroupId"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("RoomGroupId"));
 
                     b.Property<string>("ApproverBMUserId")
                         .HasColumnType("text");
@@ -695,12 +974,11 @@ namespace Roomify.Entities.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("text");
 
-                    b.Property<int>("RoomId")
-                        .HasColumnType("integer");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.HasKey("GroupId");
-
-                    b.HasIndex("RoomId");
+                    b.HasKey("RoomGroupId");
 
                     b.ToTable("RoomGroups");
                 });
@@ -736,6 +1014,9 @@ namespace Roomify.Entities.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ScheduleId"));
 
+                    b.Property<Guid>("BookingId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -755,11 +1036,19 @@ namespace Roomify.Entities.Migrations
                     b.Property<int>("SessionId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("character varying(36)");
+
                     b.HasKey("ScheduleId");
+
+                    b.HasIndex("BookingId");
 
                     b.HasIndex("RoomId");
 
                     b.HasIndex("SessionId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Schedules");
                 });
@@ -844,6 +1133,35 @@ namespace Roomify.Entities.Migrations
                     b.HasKey("StatusId");
 
                     b.ToTable("Statuses");
+                });
+
+            modelBuilder.Entity("Roomify.Entities.Subject", b =>
+                {
+                    b.Property<int>("SubjectId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("SubjectId"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LecturerId")
+                        .IsRequired()
+                        .HasColumnType("character varying(36)");
+
+                    b.Property<string>("SubjectName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("SubjectId");
+
+                    b.HasIndex("LecturerId");
+
+                    b.ToTable("Subjects");
                 });
 
             modelBuilder.Entity("Roomify.Entities.User", b =>
@@ -1090,11 +1408,42 @@ namespace Roomify.Entities.Migrations
                     b.Navigation("Bookings");
                 });
 
+            modelBuilder.Entity("Roomify.Entities.ApproverHistory", b =>
+                {
+                    b.HasOne("Roomify.Entities.Booking", "Bookings")
+                        .WithMany()
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Roomify.Entities.Status", "Statuses")
+                        .WithMany()
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Roomify.Entities.User", "Users")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Bookings");
+
+                    b.Navigation("Statuses");
+
+                    b.Navigation("Users");
+                });
+
             modelBuilder.Entity("Roomify.Entities.Booking", b =>
                 {
                     b.HasOne("Roomify.Entities.Blob", "Blob")
                         .WithMany()
-                        .HasForeignKey("BlobId")
+                        .HasForeignKey("BlobId");
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1118,6 +1467,8 @@ namespace Roomify.Entities.Migrations
 
                     b.Navigation("Blob");
 
+                    b.Navigation("Role");
+
                     b.Navigation("Rooms");
 
                     b.Navigation("Statuses");
@@ -1134,6 +1485,36 @@ namespace Roomify.Entities.Migrations
                         .IsRequired();
 
                     b.Navigation("Blob");
+                });
+
+            modelBuilder.Entity("Roomify.Entities.EquipmentBooked", b =>
+                {
+                    b.HasOne("Roomify.Entities.Booking", "Bookings")
+                        .WithMany()
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Roomify.Entities.Equipment", "Equipments")
+                        .WithMany()
+                        .HasForeignKey("EquipmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Bookings");
+
+                    b.Navigation("Equipments");
+                });
+
+            modelBuilder.Entity("Roomify.Entities.InstitutionalNumber", b =>
+                {
+                    b.HasOne("Roomify.Entities.User", "Users")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("Roomify.Entities.ManageRole", b =>
@@ -1153,6 +1534,55 @@ namespace Roomify.Entities.Migrations
                     b.Navigation("Role");
 
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("Roomify.Entities.Notification", b =>
+                {
+                    b.HasOne("Roomify.Entities.User", "Users")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("Roomify.Entities.Organization", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Roomify.Entities.User", "Users")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("Roomify.Entities.QRCode", b =>
+                {
+                    b.HasOne("Roomify.Entities.Blob", "Blob")
+                        .WithMany()
+                        .HasForeignKey("BlobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Roomify.Entities.Booking", "Bookings")
+                        .WithMany()
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Blob");
+
+                    b.Navigation("Bookings");
                 });
 
             modelBuilder.Entity("Roomify.Entities.RejectMessage", b =>
@@ -1180,24 +1610,27 @@ namespace Roomify.Entities.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Blob");
-
-                    b.Navigation("Buildings");
-                });
-
-            modelBuilder.Entity("Roomify.Entities.RoomGroup", b =>
-                {
-                    b.HasOne("Roomify.Entities.Room", "Room")
+                    b.HasOne("Roomify.Entities.RoomGroup", "RoomGroups")
                         .WithMany()
-                        .HasForeignKey("RoomId")
+                        .HasForeignKey("RoomGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Room");
+                    b.Navigation("Blob");
+
+                    b.Navigation("Buildings");
+
+                    b.Navigation("RoomGroups");
                 });
 
             modelBuilder.Entity("Roomify.Entities.Schedule", b =>
                 {
+                    b.HasOne("Roomify.Entities.Booking", "Bookings")
+                        .WithMany()
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Roomify.Entities.Room", "Room")
                         .WithMany()
                         .HasForeignKey("RoomId")
@@ -1210,9 +1643,19 @@ namespace Roomify.Entities.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Roomify.Entities.User", "Users")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Bookings");
+
                     b.Navigation("Room");
 
                     b.Navigation("Sessions");
+
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("Roomify.Entities.SessionBooked", b =>
@@ -1232,6 +1675,17 @@ namespace Roomify.Entities.Migrations
                     b.Navigation("Bookings");
 
                     b.Navigation("Sessions");
+                });
+
+            modelBuilder.Entity("Roomify.Entities.Subject", b =>
+                {
+                    b.HasOne("Roomify.Entities.User", "Lecturer")
+                        .WithMany()
+                        .HasForeignKey("LecturerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Lecturer");
                 });
 
             modelBuilder.Entity("Roomify.Entities.User", b =>

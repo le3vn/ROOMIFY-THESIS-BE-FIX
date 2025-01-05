@@ -62,8 +62,9 @@ namespace Roomify.Commons.RequestHandlers.ManageRoom
                 BuildingId = request.BuildingId,
                 Capacity = request.Capacity,
                 BlobId =  blob.Id,
+                RoomGroupId = request.RoomGroupId,
                 CreatedBy = "Admin",
-                UpdatedBy = "Admin"
+                UpdatedBy = "Admin",
             };
 
             _db.Rooms.Add(room);

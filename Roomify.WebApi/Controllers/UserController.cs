@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using Roomify.Entities;
-
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Roomify.WebApi.Controllers
@@ -180,6 +179,49 @@ namespace Roomify.WebApi.Controllers
             await _mediator.Send(model);
             return true;
         }
-}
+        [HttpGet("get-user-roles")]
+        public async Task<ActionResult<GetUserRoleResponseModel>> GetUserRole([FromQuery]GetUserRoleRequestModel request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            return Ok(result);
+        }
+        [HttpGet("get-user-by-roles")]
+        public async Task<ActionResult<GetUserByRoleResponseModel>> GetUserByRole([FromQuery]GetUserByRoleRequestModel request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            return Ok(result);
+        }
+        [HttpGet("get-role-detail")]
+        public async Task<ActionResult<GetUserRoleDetailsResponseModel>> GetRoom(string id, CancellationToken cancellationToken)
+        {
+            var request = new GetUserRoleDetailsRequestModel { UserId = id };
+            var result = await _mediator.Send(request, cancellationToken);
+            return Ok(result);
+        }
+        [HttpGet("get-role-available")]
+        public async Task<ActionResult<GetRoleAvailableToAddResponseModel>> Get([FromQuery] GetRoleAvailableToAddRequestModel request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(request, cancellationToken);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
+        }
+        [HttpPost("add-new-role")]
+        public async Task<ActionResult<AddNewRoleResponseModel>> Post([FromBody] AddNewRoleRequestModel request, CancellationToken ct)
+        {
+            var response = await _mediator.Send(request, ct);
+            return response;
+        }
+        [HttpDelete("delete-role")]
+        public async Task<ActionResult<DeleteRoleResponseModel>> DeleteRole([FromQuery]DeleteRoleRequestModel request, CancellationToken ct)
+        {
+            var response = await _mediator.Send(request, ct);
+
+            return response;
+        }
     }
+
+}
 
