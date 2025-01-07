@@ -73,11 +73,30 @@ builder.Services.AddAuthorization(options =>
     // options.FallbackPolicy = AuthorizationPolicyMap.Map[AuthorizationPolicyNames.ScopeApi];
 });
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(5000); // This will listen on all network interfaces, on port 5000
+});
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        builder => builder.WithOrigins("https://roomify-thesis-fe-kwaqgstm8-leos-projects-56865380.vercel.app") // Vercel frontend URL
+                         .AllowAnyMethod()  // Allow any HTTP methods (GET, POST, etc.)
+                         .AllowAnyHeader()  // Allow any headers
+                         .AllowCredentials()); // If you're sending cookies or authorization headers
+});
+
+
+
+
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.UseForwardedHeaders();
+
+app.UseCors("AllowFrontend");
 
 app.MapHealthChecks("/healthz", new HealthCheckOptions
 {
@@ -93,7 +112,10 @@ else
 {
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
+app.MapGet("/", () => "Welcome to Roomify API!");
 
 app.UseExceptionHandler("/error");
 

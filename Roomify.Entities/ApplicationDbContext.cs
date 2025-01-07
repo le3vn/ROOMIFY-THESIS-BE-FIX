@@ -58,7 +58,7 @@ namespace Roomify.Entities
         public DbSet<InstitutionalNumber> InstitutionalNumbers => Set<InstitutionalNumber>();
         public DbSet<QRCode> QRCodes => Set<QRCode>();
         public DbSet<ApproverHistory> ApproverHistories => Set<ApproverHistory>();
-        public DbSet<Blocker> Blockers=> Set<Blocker>();
-        public DbSet<Notification> Notifications=> Set<Notification>();
+        public DbSet<Blocker> Blockers => Set<Blocker>();
+        public DbSet<Notification> Notifications => Set<Notification>();
     }
 }

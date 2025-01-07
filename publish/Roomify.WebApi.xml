@@ -1,0 +1,202 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Roomify.WebApi</name>
+    </assembly>
+    <members>
+        <member name="T:Roomify.WebApi.AuthorizationPolicies.ApiScopeNames">
+            <summary>
+            Static class for API scope names.
+            </summary>
+        </member>
+        <member name="F:Roomify.WebApi.AuthorizationPolicies.ApiScopeNames.Api">
+            <summary>
+            Constant for the api scope.
+            </summary>
+        </member>
+        <member name="T:Roomify.WebApi.AuthorizationPolicies.AuthorizationPolicyMap">
+            <summary>
+            Authorization policy mapper class.
+            </summary>
+        </member>
+        <member name="P:Roomify.WebApi.AuthorizationPolicies.AuthorizationPolicyMap.Map">
+            <summary>
+            Readonly dictionary of authorization policies.
+            </summary>
+        </member>
+        <member name="T:Roomify.WebApi.AuthorizationPolicies.AuthorizationPolicyNames">
+            <summary>
+            static class for authorization policy names.
+            </summary>
+        </member>
+        <member name="F:Roomify.WebApi.AuthorizationPolicies.AuthorizationPolicyNames.ScopeApi">
+            <summary>
+            Constant for the scope:api.
+            </summary>
+        </member>
+        <member name="F:Roomify.WebApi.AuthorizationPolicies.AuthorizationPolicyNames.ScopeApiRoleAdministrator">
+            <summary>
+            Constant for the scope:api;role:Administrator.
+            </summary>
+        </member>
+        <member name="T:Roomify.WebApi.AuthorizationPolicies.RoleNames">
+            <summary>
+            Static class for role names.
+            </summary>
+        </member>
+        <member name="F:Roomify.WebApi.AuthorizationPolicies.RoleNames.Administrator">
+            <summary>
+            Administrator role name.
+            </summary>
+        </member>
+        <member name="T:Roomify.WebApi.ConfigureSwaggerOptions">
+            <summary>
+            Configures the Swagger generation options.
+            </summary>
+        </member>
+        <member name="M:Roomify.WebApi.ConfigureSwaggerOptions.Configure(Swashbuckle.AspNetCore.SwaggerGen.SwaggerGenOptions)">
+            <inheritdoc />
+        </member>
+        <member name="T:Roomify.WebApi.Controllers.ErrorController">
+            <summary>
+            https://learn.microsoft.com/en-us/aspnet/core/web-api/handle-errors?view=aspnetcore-6.0#exception-handler-1
+            </summary>
+        </member>
+        <member name="M:Roomify.WebApi.Controllers.ErrorController.HandleError">
+            <summary>
+            Sends an RFC 7807-compliant payload to the client.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Roomify.WebApi.Controllers.TestController">
+            <summary>
+            Represents a REST service for testing API Versioning.
+            </summary>
+        </member>
+        <member name="T:Roomify.WebApi.Controllers.TestController.DataItem">
+            <summary>
+            Model for user claim types and values.
+            </summary>
+        </member>
+        <member name="P:Roomify.WebApi.Controllers.TestController.DataItem.Type">
+            <summary>
+            Gets or sets the claim type.
+            </summary>
+        </member>
+        <member name="P:Roomify.WebApi.Controllers.TestController.DataItem.Value">
+            <summary>
+            Gets or sets the claim value.
+            </summary>
+        </member>
+        <member name="M:Roomify.WebApi.Controllers.TestController.Get">
+            <summary>
+            Gets an array of user claim types and values.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Roomify.WebApi.Controllers.UserController">
+            <summary>
+            Web API controller for handling user-related data transaction.
+            </summary>
+        </member>
+        <member name="M:Roomify.WebApi.Controllers.UserController.#ctor(MediatR.IMediator,AutoMapper.IMapper,Microsoft.AspNetCore.Identity.UserManager{Roomify.Entities.User},Microsoft.AspNetCore.Identity.SignInManager{Roomify.Entities.User})">
+            <summary>
+            Constructor for UserController.
+            </summary>
+            <param name="mediator"></param>
+            <param name="mapper"></param>
+        </member>
+        <member name="M:Roomify.WebApi.Controllers.UserController.Get(System.String)">
+            <summary>
+            Get user detail by ID.
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Roomify.WebApi.Controllers.UserController.Post(Roomify.Contracts.RequestModels.ManageUsers.CreateUserRequest,FluentValidation.IValidator{Roomify.Contracts.RequestModels.ManageUsers.CreateUserRequest},System.Threading.CancellationToken)">
+            <summary>
+            Create new user.
+            </summary>
+            <param name="model"></param>
+            <param name="validator"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+            <exception cref="T:System.InvalidOperationException"></exception>
+        </member>
+        <member name="T:Roomify.WebApi.Controllers.UserController.UpdateUserApiModel">
+            <summary>
+            Update user model class.
+            </summary>
+        </member>
+        <member name="P:Roomify.WebApi.Controllers.UserController.UpdateUserApiModel.GivenName">
+            <summary>
+            Gets or sets the user's given name.
+            </summary>
+        </member>
+        <member name="P:Roomify.WebApi.Controllers.UserController.UpdateUserApiModel.FamilyName">
+            <summary>
+            Gets or sets the user's family name.
+            </summary>
+        </member>
+        <member name="P:Roomify.WebApi.Controllers.UserController.UpdateUserApiModel.Email">
+            <summary>
+            Gets or sets the user's email address.
+            </summary>
+        </member>
+        <member name="P:Roomify.WebApi.Controllers.UserController.UpdateUserApiModel.IsEnabled">
+            <summary>
+            Gets or sets the user's enabled status.
+            </summary>
+        </member>
+        <member name="P:Roomify.WebApi.Controllers.UserController.UpdateUserApiModel.Password">
+            <summary>
+            Gets or sets the user's password.
+            </summary>
+        </member>
+        <member name="T:Roomify.WebApi.Controllers.UserController.UpdateUserApiModelAutoMapper">
+            <summary>
+            AutoMapper for UpdateUserApiModel.
+            </summary>
+        </member>
+        <member name="M:Roomify.WebApi.Controllers.UserController.UpdateUserApiModelAutoMapper.#ctor">
+            <summary>
+            Constructor for UpdateUserApiModelAutoMapper.
+            </summary>
+        </member>
+        <member name="M:Roomify.WebApi.Controllers.UserController.Post(System.String,Roomify.Contracts.RequestModels.ManageUsers.UpdateUserRequest,FluentValidation.IValidator{Roomify.Contracts.RequestModels.ManageUsers.UpdateUserRequest})">
+            <summary>
+            Update user data.
+            </summary>
+            <param name="id"></param>
+            <param name="model"></param>
+            <param name="validator"></param>
+            <returns></returns>
+            <exception cref="T:System.InvalidOperationException"></exception>
+        </member>
+        <member name="M:Accelist.Career.WebAPI.Controllers.ConnectController.Authorize(System.Threading.CancellationToken)">
+            <summary>
+            https://github.com/openiddict/openiddict-samples/blob/dev/samples/Velusia/Velusia.Server/Controllers/AuthorizationController.cs
+            </summary>
+        </member>
+        <member name="M:Accelist.Career.WebAPI.Controllers.ConnectController.Exchange(System.Threading.CancellationToken)">
+            <summary>
+            https://github.com/openiddict/openiddict-samples/blob/dev/samples/Velusia/Velusia.Server/Controllers/AuthorizationController.cs
+            </summary>
+        </member>
+        <member name="M:Accelist.Career.WebAPI.Controllers.ConnectController.GetDestinations(System.Security.Claims.Claim,System.Security.Claims.ClaimsPrincipal,OpenIddict.Abstractions.OpenIddictRequest)">
+            <summary>
+            https://github.com/openiddict/openiddict-samples/blob/dev/samples/Contruum/Contruum.Server/Pages/Connect/Authorize.cshtml.cs
+            </summary>
+            <param name="claim"></param>
+            <param name="principal"></param>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Accelist.Career.WebAPI.Controllers.ConnectController.UserInfo">
+            <summary>
+            https://github.com/openiddict/openiddict-samples/blob/dev/samples/Velusia/Velusia.Server/Controllers/UserinfoController.cs
+            </summary>
+            <returns></returns>
+        </member>
+    </members>
+</doc>
