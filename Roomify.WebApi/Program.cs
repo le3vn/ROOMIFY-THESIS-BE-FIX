@@ -73,30 +73,29 @@ builder.Services.AddAuthorization(options =>
     // options.FallbackPolicy = AuthorizationPolicyMap.Map[AuthorizationPolicyNames.ScopeApi];
 });
 
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.ListenAnyIP(5000); // This will listen on all network interfaces, on port 5000
-});
+// builder.WebHost.ConfigureKestrel(options =>
+// {
+//     options.ListenAnyIP(5000); // This will listen on all network interfaces, on port 5000
+// });
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend",
-        builder => builder.WithOrigins("https://roomify-thesis-fe-kwaqgstm8-leos-projects-56865380.vercel.app") // Vercel frontend URL
-                         .AllowAnyMethod()  // Allow any HTTP methods (GET, POST, etc.)
-                         .AllowAnyHeader()  // Allow any headers
-                         .AllowCredentials()); // If you're sending cookies or authorization headers
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://3.25.207.11") // Add the origin of your frontend here
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
 });
-
-
 
 
 
 var app = builder.Build();
 
+app.UseCors("AllowFrontend");
+
 // Configure the HTTP request pipeline.
 app.UseForwardedHeaders();
-
-app.UseCors("AllowFrontend");
 
 app.MapHealthChecks("/healthz", new HealthCheckOptions
 {
@@ -114,6 +113,7 @@ else
     app.UseHsts();
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseExceptionHandler("/error");
 }
 app.MapGet("/", () => "Welcome to Roomify API!");
 

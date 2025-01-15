@@ -96,6 +96,20 @@ namespace Roomify.Commons.RequestHandlers.ManageRoom
             CreatedBy = request.UserId  // Replace "Admin" with the actual user if applicable
         });
 
+        if (!request.IsApproved && !string.IsNullOrEmpty(request.RejectMessage))
+    {
+        var rejectionMessage = new RejectMessage
+        {
+            BookingId = request.BookingId,
+            Message = request.RejectMessage,
+            CreatedAt = DateTimeOffset.UtcNow,
+            CreatedBy = request.UserId  // This can be the actual approver's name
+        };
+
+        // Save the rejection message to the database
+        _db.RejectMessages.Add(rejectionMessage);
+    }
+
         // If the booking is being rejected, update all subsequent approvers' details
         if (!request.IsApproved)
         {
@@ -123,6 +137,7 @@ namespace Roomify.Commons.RequestHandlers.ManageRoom
                     $"Your booking for room {room?.Name} has been rejected. Check your On-going page for details.", 
                     "SYSTEM");
             }
+
         }
         else
         {
@@ -148,7 +163,48 @@ namespace Roomify.Commons.RequestHandlers.ManageRoom
                 if (booking != null)
                 {
                     booking.StatusId = request.IsApproved ? 2 : 3;  // Approved or Rejected status
+                    
+
                     await _db.SaveChangesAsync(cancellationToken);
+
+                    byte[] qrCodeBytes = await _qrCodeGeneratorService.GenerateQRCode(request.BookingId.ToString());
+
+                // Create a Blob entity for the QR code PNG
+                var blob = new Blob
+                {
+                    Id = Guid.NewGuid(),
+                    FileName = $"{request.BookingId}_QRCode.png",
+                    FilePath = $"{BlobPath.QRCode}/{request.BookingId}_QRCode.png",
+                    ContentType = "image/png",  // PNG Content-Type
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = "Admin"  // This can be the actual user creating the blob
+                };
+
+                // Upload the generated QR code PNG to the storage
+                using (var stream = new MemoryStream(qrCodeBytes))
+                {
+                    await _storageService.UploadFileAsync(blob.FilePath, stream);
+                }
+
+                // Add the Blob entry to the database
+                _db.Blobs.Add(blob);
+                await _db.SaveChangesAsync(cancellationToken);
+
+                // Create the QRCodes entry and link it to the booking
+                var qrCode = new QRCode
+                {
+                    BookingId = request.BookingId,
+                    BlobId = blob.Id,  // Link to the Blob containing the QR code image
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = "Admin"  // This can be the actual user creating the QR code
+                };
+
+                // Add the QRCode entry to the QRCodes table
+                _db.QRCodes.Add(qrCode);
+                await _db.SaveChangesAsync(cancellationToken);
+
+
+                    
 
                     // Notify the user that the booking is fully approved or rejected
                     await AddNotificationToDb(booking.UserId, 

@@ -146,7 +146,7 @@ namespace Roomify.Services.AutomaticMigrations
                 ClientId = "cms",
                 DisplayName = "CMS (Front-End)",
                 RedirectUris = {
-                    new Uri("http://localhost:3000/api/auth/callback/oidc"),
+                    new Uri("http://3.25.207.11/api/auth/callback/oidc"),
                     new Uri("https://oauth.pstmn.io/v1/callback")
                 },
                 Permissions =
