@@ -73,10 +73,10 @@ builder.Services.AddAuthorization(options =>
     // options.FallbackPolicy = AuthorizationPolicyMap.Map[AuthorizationPolicyNames.ScopeApi];
 });
 
-// builder.WebHost.ConfigureKestrel(options =>
-// {
-//     options.ListenAnyIP(5000); // This will listen on all network interfaces, on port 5000
-// });
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(5000); // This will listen on all network interfaces, on port 5000
+});
 
 builder.Services.AddCors(options =>
 {

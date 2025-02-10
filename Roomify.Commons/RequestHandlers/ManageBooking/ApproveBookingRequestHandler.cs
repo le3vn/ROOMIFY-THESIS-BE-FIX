@@ -203,7 +203,29 @@ namespace Roomify.Commons.RequestHandlers.ManageRoom
                 _db.QRCodes.Add(qrCode);
                 await _db.SaveChangesAsync(cancellationToken);
 
+                var sessionBookeds = await _db.SessionBookeds
+                    .Where(sb => sb.BookingId == request.BookingId)
+                    .ToListAsync(cancellationToken);
 
+                foreach (var sessionBooked in sessionBookeds)
+                {
+                    var schedule = new Schedule
+                    {
+                        RoomId = booking.RoomId,
+                        ScheduleDescription = booking.BookingDescription, // This can be customized as needed
+                        SessionId = sessionBooked.SessionId,
+                        UserId = booking.UserId,
+                        BookingId = request.BookingId,
+                        Date = booking.BookingDate,
+                        CreatedAt = DateTimeOffset.UtcNow,
+                        CreatedBy = "Admin"  // This can be the actual user creating the schedule
+                    };
+
+                    _db.Schedules.Add(schedule);
+                }
+
+                // Save changes after adding schedules
+                await _db.SaveChangesAsync(cancellationToken);
                     
 
                     // Notify the user that the booking is fully approved or rejected
